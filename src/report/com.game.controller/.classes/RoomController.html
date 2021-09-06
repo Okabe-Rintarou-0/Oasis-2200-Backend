@@ -1,0 +1,225 @@
+
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html id="htmlId">
+<head>
+  <title>Coverage Report :: RoomController</title>
+  <style type="text/css">
+    @import "../../.css/coverage.css";
+  </style>
+</head>
+
+<body>
+<div class="header"></div>
+
+<div class="content">
+<div class="breadCrumbs">
+    [ <a href="../../index.html">all classes</a> ]
+    [ <a href="../index.html">com.game.controller</a> ]
+</div>
+
+<h1>Coverage Summary for Class: RoomController (com.game.controller)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">RoomController</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/ 1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (6/ 6)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (19/ 19)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<div class="sourceCode"><i>1</i>&nbsp;package com.game.controller;
+<i>2</i>&nbsp;
+<i>3</i>&nbsp;import com.game.annotation.SkipToken;
+<i>4</i>&nbsp;import com.game.annotation.UserLoginToken;
+<i>5</i>&nbsp;import com.game.dto.RoomDto;
+<i>6</i>&nbsp;import com.game.service.RoomCacheService;
+<i>7</i>&nbsp;import com.game.service.RoomService;
+<i>8</i>&nbsp;import com.game.utils.jwtUtils.JwtUtil;
+<i>9</i>&nbsp;import com.game.utils.logUtils.LogUtil;
+<i>10</i>&nbsp;import com.game.utils.messageUtils.ArrayMessage;
+<i>11</i>&nbsp;import com.game.utils.messageUtils.Message;
+<i>12</i>&nbsp;import com.game.utils.messageUtils.MessageUtil;
+<i>13</i>&nbsp;import com.game.utils.testUtils.ClusterTestUtil;
+<i>14</i>&nbsp;import io.swagger.annotations.Api;
+<i>15</i>&nbsp;import jdk.nashorn.internal.ir.annotations.Ignore;
+<i>16</i>&nbsp;import net.sf.json.JSONArray;
+<i>17</i>&nbsp;import net.sf.json.JSONObject;
+<i>18</i>&nbsp;import org.springframework.beans.factory.annotation.Autowired;
+<i>19</i>&nbsp;import org.springframework.beans.factory.annotation.Value;
+<i>20</i>&nbsp;import org.springframework.messaging.simp.SimpMessagingTemplate;
+<i>21</i>&nbsp;import org.springframework.web.bind.annotation.*;
+<i>22</i>&nbsp;
+<i>23</i>&nbsp;import java.util.List;
+<i>24</i>&nbsp;
+<i>25</i>&nbsp;@Api(tags = &quot;房间模块&quot;)
+<i>26</i>&nbsp;@RestController
+<b class="fc"><i>27</i>&nbsp;public class RoomController {</b>
+<i>28</i>&nbsp;
+<i>29</i>&nbsp;    @Autowired
+<i>30</i>&nbsp;    RoomService roomService;
+<i>31</i>&nbsp;
+<i>32</i>&nbsp;    @Autowired
+<i>33</i>&nbsp;    RoomCacheService roomCacheService;
+<i>34</i>&nbsp;
+<i>35</i>&nbsp;    @Autowired
+<i>36</i>&nbsp;    ClusterTestUtil clusterTestUtil;
+<i>37</i>&nbsp;
+<i>38</i>&nbsp;    @Value(&quot;${cluster.strategy}&quot;)
+<i>39</i>&nbsp;    String strategy;
+<i>40</i>&nbsp;
+<i>41</i>&nbsp;    @Autowired
+<i>42</i>&nbsp;    SimpMessagingTemplate simpMessagingTemplate;
+<i>43</i>&nbsp;
+<i>44</i>&nbsp;    @RequestMapping(value = &quot;/createRoom&quot;, method = RequestMethod.GET)
+<i>45</i>&nbsp;    public Message createRoom() {
+<b class="fc"><i>46</i>&nbsp;        clusterTestUtil.logWhoImAndWhatIHaveCalled(&quot;createRoom&quot;);</b>
+<b class="fc"><i>47</i>&nbsp;        return roomCacheService.createRoom(JwtUtil.getUserId());</b>
+<i>48</i>&nbsp;//        return roomService.addRoom(JwtUtil.getUserId());
+<i>49</i>&nbsp;    }
+<i>50</i>&nbsp;
+<i>51</i>&nbsp;    //测试用接口
+<i>52</i>&nbsp;    @SkipToken
+<i>53</i>&nbsp;    @RequestMapping(value = &quot;/getAllRooms&quot;, method = RequestMethod.GET)
+<i>54</i>&nbsp;    public ArrayMessage getAllRooms() {
+<b class="fc"><i>55</i>&nbsp;        List&lt;RoomDto&gt; allRooms = roomService.getAllRooms();</b>
+<b class="fc"><i>56</i>&nbsp;        return MessageUtil.createArrayMessage(MessageUtil.STAT_OK, &quot;所有房间信息&quot;, JSONArray.fromObject(allRooms));</b>
+<i>57</i>&nbsp;    }
+<i>58</i>&nbsp;
+<i>59</i>&nbsp;    @SkipToken
+<i>60</i>&nbsp;    @RequestMapping(value = &quot;/clearAllRooms&quot;, method = RequestMethod.GET)
+<i>61</i>&nbsp;    public String clearAllRooms() {
+<b class="fc"><i>62</i>&nbsp;        roomService.clearRooms();</b>
+<b class="fc"><i>63</i>&nbsp;        return &quot;清除成功!&quot;;</b>
+<i>64</i>&nbsp;    }
+<i>65</i>&nbsp;
+<i>66</i>&nbsp;//    @SkipToken
+<i>67</i>&nbsp;//    @RequestMapping(value = &quot;/refreshRooms&quot;, method = RequestMethod.GET)
+<i>68</i>&nbsp;//    public List&lt;RoomDto&gt; refreshRooms() {
+<i>69</i>&nbsp;//        return roomService.refreshRooms();
+<i>70</i>&nbsp;//    }
+<i>71</i>&nbsp;
+<i>72</i>&nbsp;    @UserLoginToken
+<i>73</i>&nbsp;    @RequestMapping(value = &quot;/joinRoom&quot;, method = RequestMethod.GET)
+<i>74</i>&nbsp;    public Message joinRoom() {
+<b class="fc"><i>75</i>&nbsp;        clusterTestUtil.logWhoImAndWhatIHaveCalled(&quot;joinRoom&quot;);</b>
+<b class="fc"><i>76</i>&nbsp;        RoomDto roomDto = roomCacheService.joinRoom(JwtUtil.getUserId());</b>
+<b class="fc"><i>77</i>&nbsp;        if (roomDto != null) {</b>
+<b class="fc"><i>78</i>&nbsp;            return MessageUtil.createMessage(MessageUtil.STAT_OK, &quot;加入成功！&quot;, JSONObject.fromObject(roomDto));</b>
+<i>79</i>&nbsp;        } else {
+<b class="fc"><i>80</i>&nbsp;            return MessageUtil.createMessage(MessageUtil.STAT_INVALID, &quot;加入失败&quot;);</b>
+<i>81</i>&nbsp;        }
+<i>82</i>&nbsp;//        RoomDto roomDto = roomService.joinRandomValidRoom(JwtUtil.getUserId());
+<i>83</i>&nbsp;//        if (roomDto == null) {
+<i>84</i>&nbsp;//            return roomService.addRoom(JwtUtil.getUserId());
+<i>85</i>&nbsp;//        }
+<i>86</i>&nbsp;//        return MessageUtil.createMessage(MessageUtil.STAT_OK, &quot;加入成功！&quot;, JSONObject.fromObject(roomDto));
+<i>87</i>&nbsp;    }
+<i>88</i>&nbsp;
+<i>89</i>&nbsp;    @RequestMapping(value = &quot;/joinOrCreate&quot;, method = RequestMethod.GET)
+<i>90</i>&nbsp;    public Message joinOrCreateRoom() {
+<b class="fc"><i>91</i>&nbsp;        Integer userId = JwtUtil.getUserId();</b>
+<b class="fc"><i>92</i>&nbsp;        clusterTestUtil.logWhoImAndWhatIHaveCalled(&quot;joinRoom&quot;);</b>
+<b class="fc"><i>93</i>&nbsp;        RoomDto roomDto = roomCacheService.joinRoom(userId);</b>
+<b class="fc"><i>94</i>&nbsp;        if (roomDto != null) {</b>
+<b class="fc"><i>95</i>&nbsp;            return MessageUtil.createMessage(MessageUtil.STAT_OK, &quot;加入成功！&quot;, JSONObject.fromObject(roomDto));</b>
+<i>96</i>&nbsp;        } else {
+<b class="fc"><i>97</i>&nbsp;            roomCacheService.createRoom(userId);</b>
+<b class="fc"><i>98</i>&nbsp;            return MessageUtil.createMessage(MessageUtil.STAT_OK, &quot;创建成功！&quot;);</b>
+<i>99</i>&nbsp;        }
+<i>100</i>&nbsp;//        RoomDto roomDto = roomService.joinRandomValidRoom(userId);
+<i>101</i>&nbsp;//        if (roomDto == null) {
+<i>102</i>&nbsp;//            return roomService.addRoom(userId);
+<i>103</i>&nbsp;//        }
+<i>104</i>&nbsp;//        return MessageUtil.createMessage(MessageUtil.STAT_OK, &quot;加入成功！&quot;, JSONObject.fromObject(roomDto));
+<i>105</i>&nbsp;    }
+<i>106</i>&nbsp;
+<i>107</i>&nbsp;//    @RequestMapping(value = &quot;/removeRoom&quot;, method = RequestMethod.GET)
+<i>108</i>&nbsp;//    public void removeRoom(@RequestParam Integer roomId) {
+<i>109</i>&nbsp;//        LogUtil.print(&quot;Remove room: &quot; + roomId);
+<i>110</i>&nbsp;//        if (strategy.equals(&quot;shared&quot;)) {
+<i>111</i>&nbsp;//            clusterTestUtil.logWhoImAndWhatIHaveCalled(&quot;removeRoom&quot;);
+<i>112</i>&nbsp;//            roomCacheService.removeRoom(roomId);
+<i>113</i>&nbsp;//        } else {
+<i>114</i>&nbsp;//            roomService.forceDeleteRoom(roomId);
+<i>115</i>&nbsp;//        }
+<i>116</i>&nbsp;//    }
+<i>117</i>&nbsp;//
+<i>118</i>&nbsp;//    @RequestMapping(value = &quot;/leaveRoom&quot;, method = RequestMethod.GET)
+<i>119</i>&nbsp;//    public Message leaveRoom(@RequestParam Integer roomId) {
+<i>120</i>&nbsp;//        if (roomService.leaveRoom(roomId)) {
+<i>121</i>&nbsp;//            LogUtil.print(&quot;leave Room: &quot; + roomId + &quot; succeed!&quot;);
+<i>122</i>&nbsp;//            return MessageUtil.createMessage(MessageUtil.STAT_OK, &quot;退出成功&quot;);
+<i>123</i>&nbsp;//        } else {
+<i>124</i>&nbsp;//            return MessageUtil.createMessage(MessageUtil.STAT_INVALID, &quot;退出失败！&quot;);
+<i>125</i>&nbsp;//        }
+<i>126</i>&nbsp;//    }
+<i>127</i>&nbsp;//
+<i>128</i>&nbsp;//    @RequestMapping(value = &quot;/getCurrentRoom&quot;, method = RequestMethod.GET)
+<i>129</i>&nbsp;//    public Message getCurrentRoom() {
+<i>130</i>&nbsp;//        int currentRoom = -1;
+<i>131</i>&nbsp;//        if (strategy.equals(&quot;shared&quot;)) {
+<i>132</i>&nbsp;//            RoomDto roomDto = roomCacheService.getRoom(JwtUtil.getUserId());
+<i>133</i>&nbsp;//            currentRoom = roomDto.getRoomId();
+<i>134</i>&nbsp;//        } else {
+<i>135</i>&nbsp;//            currentRoom = roomService.getCurrentRoom();
+<i>136</i>&nbsp;//        }
+<i>137</i>&nbsp;//        JSONObject data = new JSONObject();
+<i>138</i>&nbsp;//        data.put(&quot;roomId&quot;, currentRoom);
+<i>139</i>&nbsp;//        data.put(&quot;gid&quot;, roomService.getCurrentGameId());
+<i>140</i>&nbsp;//        return MessageUtil.createMessage(MessageUtil.STAT_OK, data);
+<i>141</i>&nbsp;//    }
+<i>142</i>&nbsp;}
+</div>
+</div>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2021-09-04 20:54</div>
+</div>
+</body>
+</html>

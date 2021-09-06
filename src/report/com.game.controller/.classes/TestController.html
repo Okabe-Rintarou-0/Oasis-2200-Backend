@@ -1,0 +1,471 @@
+
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html id="htmlId">
+<head>
+  <title>Coverage Report :: TestController</title>
+  <style type="text/css">
+    @import "../../.css/coverage.css";
+  </style>
+</head>
+
+<body>
+<div class="header"></div>
+
+<div class="content">
+<div class="breadCrumbs">
+    [ <a href="../../index.html">all classes</a> ]
+    [ <a href="../index.html">com.game.controller</a> ]
+</div>
+
+<h1>Coverage Summary for Class: TestController (com.game.controller)</h1>
+
+<table class="coverageStats">
+
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">TestController</td>
+<td class="coverageStat">
+  <span class="percent">
+    9.1%
+  </span>
+  <span class="absValue">
+    (2/ 22)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    7.8%
+  </span>
+  <span class="absValue">
+    (9/ 115)
+  </span>
+</td>
+</tr>
+  <tr>
+    <td class="name">TestController$$EnhancerBySpringCGLIB$$4ef1636a</td>
+  </tr>
+  <tr>
+    <td class="name">TestController$$EnhancerBySpringCGLIB$$5f97d570</td>
+  </tr>
+  <tr>
+    <td class="name">TestController$$EnhancerBySpringCGLIB$$7340a5db</td>
+  </tr>
+  <tr>
+    <td class="name">TestController$$EnhancerBySpringCGLIB$$73fbebda</td>
+  </tr>
+  <tr>
+    <td class="name">TestController$$EnhancerBySpringCGLIB$$81576e7a</td>
+  </tr>
+  <tr>
+    <td class="name">TestController$$EnhancerBySpringCGLIB$$dd1b2fb0</td>
+  </tr>
+  <tr>
+    <td class="name">TestController$$EnhancerBySpringCGLIB$$df4daf51</td>
+  </tr>
+  <tr>
+    <td class="name">TestController$1</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/ 3)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/ 3)
+  </span>
+</td>
+  </tr>
+  <tr>
+    <td class="name">TestController$2</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/ 3)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/ 3)
+  </span>
+</td>
+  </tr>
+<tr>
+  <td class="name"><strong>total</strong></td>
+<td class="coverageStat">
+  <span class="percent">
+    7.1%
+  </span>
+  <span class="absValue">
+    (2/ 28)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    7.4%
+  </span>
+  <span class="absValue">
+    (9/ 121)
+  </span>
+</td>
+</tr>
+</table>
+
+<br/>
+<br/>
+
+
+<div class="sourceCode"><i>1</i>&nbsp;package com.game.controller;
+<i>2</i>&nbsp;
+<i>3</i>&nbsp;import com.game.annotation.SkipToken;
+<i>4</i>&nbsp;import com.game.constants.NetworkConstants;
+<i>5</i>&nbsp;import com.game.dto.RoomDto;
+<i>6</i>&nbsp;import com.game.dto.RoomFeatureDto;
+<i>7</i>&nbsp;
+<i>8</i>&nbsp;import com.game.entity.Frame;
+<i>9</i>&nbsp;import com.game.service.RoomCacheService;
+<i>10</i>&nbsp;
+<i>11</i>&nbsp;import com.game.utils.ipUtils.IpUtil;
+<i>12</i>&nbsp;import com.game.utils.jwtUtils.JwtUtil;
+<i>13</i>&nbsp;import com.game.utils.logUtils.LogUtil;
+<i>14</i>&nbsp;import com.game.utils.messageUtils.Message;
+<i>15</i>&nbsp;import com.game.utils.testUtils.ClusterTestUtil;
+<i>16</i>&nbsp;import com.game.utils.triggerUtils.TriggerUtil;
+<i>17</i>&nbsp;import io.swagger.annotations.Api;
+<i>18</i>&nbsp;import io.swagger.annotations.ApiOperation;
+<i>19</i>&nbsp;
+<i>20</i>&nbsp;import org.springframework.beans.factory.annotation.Autowired;
+<i>21</i>&nbsp;
+<i>22</i>&nbsp;import org.springframework.context.annotation.Bean;
+<i>23</i>&nbsp;import org.springframework.messaging.converter.MappingJackson2MessageConverter;
+<i>24</i>&nbsp;import org.springframework.messaging.simp.SimpMessagingTemplate;
+<i>25</i>&nbsp;import org.springframework.scheduling.annotation.Scheduled;
+<i>26</i>&nbsp;import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
+<i>27</i>&nbsp;import org.springframework.scheduling.config.ScheduledTask;
+<i>28</i>&nbsp;import org.springframework.web.bind.annotation.*;
+<i>29</i>&nbsp;import com.game.entity.User;
+<i>30</i>&nbsp;import com.game.utils.messageUtils.MessageUtil;
+<i>31</i>&nbsp;import com.game.utils.redisUtils.RedisMessageManager;
+<i>32</i>&nbsp;import com.game.utils.testUtils.StompSessionBuilder;
+<i>33</i>&nbsp;import net.sf.json.JSONObject;
+<i>34</i>&nbsp;import org.springframework.cache.annotation.Cacheable;
+<i>35</i>&nbsp;import org.springframework.data.redis.core.RedisTemplate;
+<i>36</i>&nbsp;import org.springframework.messaging.converter.StringMessageConverter;
+<i>37</i>&nbsp;import org.springframework.messaging.simp.stomp.StompFrameHandler;
+<i>38</i>&nbsp;import org.springframework.messaging.simp.stomp.StompHeaders;
+<i>39</i>&nbsp;import org.springframework.messaging.simp.stomp.StompSession;
+<i>40</i>&nbsp;
+<i>41</i>&nbsp;
+<i>42</i>&nbsp;import javax.annotation.PostConstruct;
+<i>43</i>&nbsp;import javax.servlet.http.HttpSession;
+<i>44</i>&nbsp;import java.lang.reflect.Type;
+<i>45</i>&nbsp;import java.net.SocketException;
+<i>46</i>&nbsp;import java.util.*;
+<i>47</i>&nbsp;import java.util.concurrent.ExecutionException;
+<i>48</i>&nbsp;import java.util.concurrent.ScheduledFuture;
+<i>49</i>&nbsp;import java.util.concurrent.TimeoutException;
+<i>50</i>&nbsp;
+<i>51</i>&nbsp;import java.net.InetAddress;
+<i>52</i>&nbsp;import java.net.NetworkInterface;
+<i>53</i>&nbsp;
+<i>54</i>&nbsp;@Api(tags = &quot;测试模块&quot;)
+<i>55</i>&nbsp;@RestController
+<i>56</i>&nbsp;@RequestMapping(&quot;/test&quot;)
+<b class="fc"><i>57</i>&nbsp;public class TestController {</b>
+<i>58</i>&nbsp;    private static String getMACAddress(InetAddress ia) throws Exception {
+<i>59</i>&nbsp;        // 获得网络接口对象（即网卡），并得到mac地址，mac地址存在于一个byte数组中。
+<b class="nc"><i>60</i>&nbsp;        byte[] mac = NetworkInterface.getByInetAddress(ia).getHardwareAddress();</b>
+<i>61</i>&nbsp;        // 下面代码是把mac地址拼装成String
+<b class="nc"><i>62</i>&nbsp;        StringBuilder sb = new StringBuilder();</b>
+<b class="nc"><i>63</i>&nbsp;        for (int i = 0; i &lt; mac.length; i++) {</b>
+<b class="nc"><i>64</i>&nbsp;            if (i != 0) {</b>
+<b class="nc"><i>65</i>&nbsp;                sb.append(&quot;-&quot;);</b>
+<i>66</i>&nbsp;            }
+<i>67</i>&nbsp;            // mac[i] &amp; 0xFF 是为了把byte转化为正整数
+<b class="nc"><i>68</i>&nbsp;            String s = Integer.toHexString(mac[i] &amp; 0xFF);</b>
+<i>69</i>&nbsp;            // System.out.println(&quot;--------------&quot;);
+<i>70</i>&nbsp;            // System.err.println(s);
+<b class="nc"><i>71</i>&nbsp;            sb.append(s.length() == 1 ? 0 + s : s);</b>
+<i>72</i>&nbsp;        }
+<i>73</i>&nbsp;        // 把字符串所有小写字母改为大写成为正规的mac地址并返回
+<b class="nc"><i>74</i>&nbsp;        return sb.toString().toUpperCase();</b>
+<i>75</i>&nbsp;    }
+<i>76</i>&nbsp;
+<i>77</i>&nbsp;    @RequestMapping(value = &quot;/serverTest&quot;, method = RequestMethod.GET)
+<i>78</i>&nbsp;    public String getServerName() throws Exception {
+<b class="nc"><i>79</i>&nbsp;        InetAddress ia = null;</b>
+<b class="nc"><i>80</i>&nbsp;        String a = &quot;777&quot;;</b>
+<b class="nc"><i>81</i>&nbsp;        ia = InetAddress.getLocalHost();</b>
+<b class="nc"><i>82</i>&nbsp;        String localname = ia.getHostName();</b>
+<b class="nc"><i>83</i>&nbsp;        String localip = ia.getHostAddress();</b>
+<b class="nc"><i>84</i>&nbsp;        InetAddress ia1 = InetAddress.getLocalHost();// 获取本地IP对象</b>
+<b class="nc"><i>85</i>&nbsp;        a += &quot;本机名称是：&quot; + localname + &#39;\n&#39;;</b>
+<b class="nc"><i>86</i>&nbsp;        a += &quot;本机的ip是 ：&quot; + localip + &#39;\n&#39;;</b>
+<i>87</i>&nbsp;//        a += &quot;本机的MAC是 ：&quot; + getMACAddress(ia1) + &#39;\n&#39;;
+<b class="nc"><i>88</i>&nbsp;        return a;</b>
+<i>89</i>&nbsp;    }
+<i>90</i>&nbsp;
+<i>91</i>&nbsp;    @Autowired
+<i>92</i>&nbsp;    IpUtil ipUtil;
+<i>93</i>&nbsp;
+<i>94</i>&nbsp;    @RequestMapping(value = &quot;/ip&quot;, method = RequestMethod.GET)
+<i>95</i>&nbsp;    public String getIntraNet() throws SocketException {
+<b class="nc"><i>96</i>&nbsp;        return ipUtil.getIntranetIp();</b>
+<i>97</i>&nbsp;    }
+<i>98</i>&nbsp;
+<i>99</i>&nbsp;    @Autowired
+<i>100</i>&nbsp;    RedisMessageManager redisMessageManager;
+<i>101</i>&nbsp;
+<i>102</i>&nbsp;    @Autowired
+<i>103</i>&nbsp;    RedisTemplate&lt;String, Object&gt; redisTemplate;
+<i>104</i>&nbsp;
+<b class="fc"><i>105</i>&nbsp;    private StompSession testSession = null;</b>
+<i>106</i>&nbsp;
+<i>107</i>&nbsp;    @RequestMapping(value = &quot;/getUser&quot;, method = RequestMethod.GET)
+<i>108</i>&nbsp;    @Cacheable(value = &quot;userKey&quot;)
+<i>109</i>&nbsp;    public User getUser() {
+<b class="nc"><i>110</i>&nbsp;        User user = new User(0, &quot;123&quot;, &quot;123&quot;);</b>
+<b class="nc"><i>111</i>&nbsp;        System.out.println(&quot;若下面没出现“无缓存的时候调用”字样且能打印出数据表示测试成功&quot;);</b>
+<b class="nc"><i>112</i>&nbsp;        return user;</b>
+<i>113</i>&nbsp;    }
+<i>114</i>&nbsp;
+<i>115</i>&nbsp;    @RequestMapping(value = &quot;/uid&quot;, method = RequestMethod.GET)
+<i>116</i>&nbsp;    String uid(HttpSession session) {
+<b class="nc"><i>117</i>&nbsp;        UUID uid = (UUID) session.getAttribute(&quot;uid&quot;);</b>
+<b class="nc"><i>118</i>&nbsp;        if (uid == null) {</b>
+<b class="nc"><i>119</i>&nbsp;            uid = UUID.randomUUID();</b>
+<i>120</i>&nbsp;        }
+<b class="nc"><i>121</i>&nbsp;        session.setAttribute(&quot;uid&quot;, uid);</b>
+<b class="nc"><i>122</i>&nbsp;        return session.getId();</b>
+<i>123</i>&nbsp;    }
+<i>124</i>&nbsp;
+<i>125</i>&nbsp;    @RequestMapping(value = &quot;/sendRedis&quot;, method = RequestMethod.GET)
+<i>126</i>&nbsp;    void sendMessage() {
+<b class="nc"><i>127</i>&nbsp;        redisMessageManager.sendObject(&quot;room&quot;, MessageUtil.createMessage(MessageUtil.STAT_OK, &quot;Hello from Redis.&quot;, JSONObject.fromObject(new User())));</b>
+<b class="nc"><i>128</i>&nbsp;    }</b>
+<i>129</i>&nbsp;
+<i>130</i>&nbsp;    @Autowired
+<i>131</i>&nbsp;    String intraNetIp;
+<i>132</i>&nbsp;
+<i>133</i>&nbsp;    @RequestMapping(value = &quot;/testChat&quot;, method = RequestMethod.GET)
+<i>134</i>&nbsp;    public String testChat(@RequestParam(value = &quot;testMessage&quot;) String message) throws InterruptedException, ExecutionException, TimeoutException {
+<b class="nc"><i>135</i>&nbsp;        LogUtil.print(String.format(&quot;chat with message: %s%n&quot;, message));</b>
+<b class="nc"><i>136</i>&nbsp;        if (testSession == null) {</b>
+<b class="nc"><i>137</i>&nbsp;            testSession = new StompSessionBuilder()</b>
+<b class="nc"><i>138</i>&nbsp;                    .buildWebSocketStompClient()</b>
+<b class="nc"><i>139</i>&nbsp;                    .setMessageConverter(new StringMessageConverter()) //for string</b>
+<b class="nc"><i>140</i>&nbsp;                    .allocatePort(8080)</b>
+<b class="nc"><i>141</i>&nbsp;                    .buildWebsocketSession();</b>
+<b class="nc"><i>142</i>&nbsp;            testSession.subscribe(&quot;/topics/chat&quot;, new StompFrameHandler() {</b>
+<i>143</i>&nbsp;                @Override
+<i>144</i>&nbsp;                public Type getPayloadType(StompHeaders stompHeaders) {
+<b class="nc"><i>145</i>&nbsp;                    return String.class;</b>
+<i>146</i>&nbsp;                }
+<i>147</i>&nbsp;
+<i>148</i>&nbsp;                @Override
+<i>149</i>&nbsp;                public void handleFrame(StompHeaders stompHeaders, Object o) {
+<b class="nc"><i>150</i>&nbsp;                    LogUtil.print(String.format(&quot;Receive broadcast: %s%n, I&#39;m %s&quot;, o.toString(), intraNetIp));</b>
+<i>151</i>&nbsp;                }
+<i>152</i>&nbsp;            });
+<i>153</i>&nbsp;        }
+<b class="nc"><i>154</i>&nbsp;        testSession.send(&quot;/app/chatroom&quot;, message);</b>
+<b class="nc"><i>155</i>&nbsp;        return &quot;send testMessage&quot;;</b>
+<i>156</i>&nbsp;    }
+<i>157</i>&nbsp;
+<i>158</i>&nbsp;    @Autowired
+<i>159</i>&nbsp;    RoomCacheService roomCacheService;
+<i>160</i>&nbsp;
+<i>161</i>&nbsp;    @Autowired
+<i>162</i>&nbsp;    ClusterTestUtil clusterTestUtil;
+<i>163</i>&nbsp;
+<i>164</i>&nbsp;    @RequestMapping(value = &quot;/getRoomFeatures&quot;, method = RequestMethod.GET)
+<i>165</i>&nbsp;    public Map&lt;String, Map&lt;String, RoomFeatureDto&gt;&gt; getRoomFeatures() {
+<b class="nc"><i>166</i>&nbsp;        clusterTestUtil.logWhoImAndWhatIHaveCalled(&quot;getRoomFeatures&quot;);</b>
+<b class="nc"><i>167</i>&nbsp;        return roomCacheService.getRoomFeatures();</b>
+<i>168</i>&nbsp;    }
+<i>169</i>&nbsp;
+<i>170</i>&nbsp;    @RequestMapping(value = &quot;/createRoom&quot;, method = RequestMethod.GET)
+<i>171</i>&nbsp;    public void createRoom(@RequestParam Integer userId) {
+<b class="nc"><i>172</i>&nbsp;        clusterTestUtil.logWhoImAndWhatIHaveCalled(&quot;createRoom&quot;);</b>
+<b class="nc"><i>173</i>&nbsp;        roomCacheService.createRoom(userId);</b>
+<b class="nc"><i>174</i>&nbsp;    }</b>
+<i>175</i>&nbsp;
+<i>176</i>&nbsp;    @RequestMapping(value = &quot;/joinRoom&quot;, method = RequestMethod.GET)
+<i>177</i>&nbsp;    public void joinRoom(@RequestParam Integer userId) {
+<b class="nc"><i>178</i>&nbsp;        clusterTestUtil.logWhoImAndWhatIHaveCalled(&quot;joinRoom&quot;);</b>
+<b class="nc"><i>179</i>&nbsp;        roomCacheService.joinRoom(userId);</b>
+<b class="nc"><i>180</i>&nbsp;    }</b>
+<i>181</i>&nbsp;
+<i>182</i>&nbsp;    @RequestMapping(value = &quot;/users&quot;, method = RequestMethod.GET)
+<i>183</i>&nbsp;    public Map&lt;String, Integer&gt; getUserStates() {
+<b class="nc"><i>184</i>&nbsp;        clusterTestUtil.logWhoImAndWhatIHaveCalled(&quot;getUserStates&quot;);</b>
+<b class="nc"><i>185</i>&nbsp;        return roomCacheService.getUserStates();</b>
+<i>186</i>&nbsp;    }
+<i>187</i>&nbsp;
+<i>188</i>&nbsp;    @RequestMapping(value = &quot;/removeRoom&quot;, method = RequestMethod.GET)
+<i>189</i>&nbsp;    public void removeRoom(@RequestParam Integer roomId) {
+<b class="nc"><i>190</i>&nbsp;        clusterTestUtil.logWhoImAndWhatIHaveCalled(&quot;removeRoom&quot;);</b>
+<b class="nc"><i>191</i>&nbsp;        roomCacheService.removeRoom(roomId);</b>
+<b class="nc"><i>192</i>&nbsp;    }</b>
+<i>193</i>&nbsp;
+<i>194</i>&nbsp;    @RequestMapping(value = &quot;/clear&quot;, method = RequestMethod.GET)
+<i>195</i>&nbsp;    public void clearRoomContext() {
+<b class="nc"><i>196</i>&nbsp;        clusterTestUtil.logWhoImAndWhatIHaveCalled(&quot;clearRoomContext&quot;);</b>
+<b class="nc"><i>197</i>&nbsp;        roomCacheService.clearRoomContext();</b>
+<b class="nc"><i>198</i>&nbsp;    }</b>
+<i>199</i>&nbsp;
+<i>200</i>&nbsp;    @Autowired
+<i>201</i>&nbsp;    LoginController loginController;
+<i>202</i>&nbsp;
+<i>203</i>&nbsp;    @Autowired
+<i>204</i>&nbsp;    RegisterController registerController;
+<i>205</i>&nbsp;
+<i>206</i>&nbsp;    @Autowired
+<i>207</i>&nbsp;    UserController userController;
+<i>208</i>&nbsp;
+<b class="fc"><i>209</i>&nbsp;    private final List&lt;StompSession&gt; stompSessionList = new ArrayList&lt;&gt;();</b>
+<i>210</i>&nbsp;
+<i>211</i>&nbsp;    private int getIdentity(String sessionId) {
+<b class="nc"><i>212</i>&nbsp;        if (sessionId == null) return -1;</b>
+<b class="nc"><i>213</i>&nbsp;        int sum = 0;</b>
+<b class="nc"><i>214</i>&nbsp;        for (int i = 0; i &lt; sessionId.length(); ++i) {</b>
+<b class="nc"><i>215</i>&nbsp;            sum += sessionId.charAt(i);</b>
+<i>216</i>&nbsp;        }
+<b class="nc"><i>217</i>&nbsp;        return sum % 2;</b>
+<i>218</i>&nbsp;    }
+<i>219</i>&nbsp;
+<i>220</i>&nbsp;    @ApiOperation(&quot;房间压力测试&quot;)
+<i>221</i>&nbsp;    @RequestMapping(value = &quot;/room&quot;, method = RequestMethod.GET)
+<i>222</i>&nbsp;    public String testRoom(@RequestParam(value = &quot;testId&quot;) Integer testId) {
+<b class="nc"><i>223</i>&nbsp;        int identity = testId % 2;</b>
+<b class="nc"><i>224</i>&nbsp;        Integer userId = JwtUtil.getUserId();</b>
+<b class="nc"><i>225</i>&nbsp;        System.out.println(&quot;userId = &quot; + userId);</b>
+<b class="nc"><i>226</i>&nbsp;        int roomId = -1;</b>
+<b class="nc"><i>227</i>&nbsp;        if (identity == 1) { //is host</b>
+<b class="nc"><i>228</i>&nbsp;            System.out.println(&quot;im host&quot;);</b>
+<b class="nc"><i>229</i>&nbsp;            Message message = roomCacheService.createRoom(userId);</b>
+<b class="nc"><i>230</i>&nbsp;            if (message.status &gt; 0) {</b>
+<b class="nc"><i>231</i>&nbsp;                roomId = (Integer) message.data.get(&quot;roomId&quot;);</b>
+<i>232</i>&nbsp;            }
+<b class="nc"><i>233</i>&nbsp;        } else {</b>
+<b class="nc"><i>234</i>&nbsp;            System.out.println(&quot;im client&quot;);</b>
+<b class="nc"><i>235</i>&nbsp;            RoomDto roomDto = roomCacheService.joinRoom(userId);</b>
+<b class="nc"><i>236</i>&nbsp;            if (roomDto == null) { //再加入一次</b>
+<b class="nc"><i>237</i>&nbsp;                System.out.println(&quot;Join again&quot;);</b>
+<b class="nc"><i>238</i>&nbsp;                roomDto = roomCacheService.joinRoom(userId);</b>
+<i>239</i>&nbsp;            }
+<b class="nc"><i>240</i>&nbsp;            if (roomDto != null) {</b>
+<b class="nc"><i>241</i>&nbsp;                roomId = roomDto.getRoomId();</b>
+<b class="nc"><i>242</i>&nbsp;                System.out.println(&quot;加入成功！&quot;);</b>
+<i>243</i>&nbsp;            }
+<i>244</i>&nbsp;        }
+<b class="nc"><i>245</i>&nbsp;        if (roomId &lt; 0) return &quot;No room&quot;;</b>
+<b class="nc"><i>246</i>&nbsp;        return identity == 1 ? &quot;I am host&quot; : &quot;I am client&quot;;</b>
+<i>247</i>&nbsp;    }
+<i>248</i>&nbsp;
+<b class="fc"><i>249</i>&nbsp;    private List&lt;StompSession&gt; sessions = new ArrayList&lt;&gt;();</b>
+<i>250</i>&nbsp;
+<i>251</i>&nbsp;    @SkipToken
+<i>252</i>&nbsp;    @RequestMapping(value = &quot;/connectAndSub&quot;, method = RequestMethod.GET)
+<i>253</i>&nbsp;    public void testWsConnectAndSub(@RequestParam Integer id) throws InterruptedException, ExecutionException, TimeoutException {
+<b class="nc"><i>254</i>&nbsp;        testSession = new StompSessionBuilder()</b>
+<b class="nc"><i>255</i>&nbsp;                .buildWebSocketStompClient()</b>
+<b class="nc"><i>256</i>&nbsp;                .setMessageConverter(new MappingJackson2MessageConverter()) //for string</b>
+<b class="nc"><i>257</i>&nbsp;                .allocatePort(8080)</b>
+<b class="nc"><i>258</i>&nbsp;                .buildWebsocketSession();</b>
+<b class="nc"><i>259</i>&nbsp;        String subUrl = String.format(NetworkConstants.TOPIC_ROOM_FORMAT, (id / 2) + &quot;&quot;);</b>
+<b class="nc"><i>260</i>&nbsp;        testSession.subscribe(subUrl, new StompFrameHandler() {</b>
+<i>261</i>&nbsp;            @Override
+<i>262</i>&nbsp;            public Type getPayloadType(StompHeaders stompHeaders) {
+<b class="nc"><i>263</i>&nbsp;                return Object.class;</b>
+<i>264</i>&nbsp;            }
+<i>265</i>&nbsp;
+<i>266</i>&nbsp;            @Override
+<i>267</i>&nbsp;            public void handleFrame(StompHeaders stompHeaders, Object o) {
+<b class="nc"><i>268</i>&nbsp;                LogUtil.print(String.format(&quot;Receive broadcast: %s, I&#39;m %s&quot;, o.toString(), id));</b>
+<i>269</i>&nbsp;            }
+<i>270</i>&nbsp;        });
+<b class="nc"><i>271</i>&nbsp;        sessions.add(testSession);</b>
+<b class="nc"><i>272</i>&nbsp;        int roomId = id / 2;</b>
+<b class="nc"><i>273</i>&nbsp;        if (scheduledFutures.containsKey(roomId)) return;</b>
+<b class="nc"><i>274</i>&nbsp;        addScheduledTask(roomId, () -&gt; {</b>
+<b class="nc"><i>275</i>&nbsp;            simpMessagingTemplate.convertAndSend(subUrl, data);</b>
+<b class="nc"><i>276</i>&nbsp;        }, 66);</b>
+<b class="nc"><i>277</i>&nbsp;    }</b>
+<i>278</i>&nbsp;
+<i>279</i>&nbsp;    @Autowired
+<i>280</i>&nbsp;    SimpMessagingTemplate simpMessagingTemplate;
+<i>281</i>&nbsp;
+<b class="fc"><i>282</i>&nbsp;    Map&lt;String, Frame&gt; data = new HashMap&lt;&gt;();</b>
+<i>283</i>&nbsp;
+<i>284</i>&nbsp;    @PostConstruct
+<i>285</i>&nbsp;    private void init() {
+<b class="fc"><i>286</i>&nbsp;        data.put(&quot;0&quot;, new Frame());</b>
+<b class="fc"><i>287</i>&nbsp;        data.put(&quot;1&quot;, new Frame());</b>
+<b class="fc"><i>288</i>&nbsp;    }</b>
+<i>289</i>&nbsp;
+<i>290</i>&nbsp;    @Autowired
+<i>291</i>&nbsp;    ThreadPoolTaskScheduler threadPoolTaskScheduler;
+<i>292</i>&nbsp;
+<i>293</i>&nbsp;    @Autowired
+<i>294</i>&nbsp;    TriggerUtil triggerUtil;
+<i>295</i>&nbsp;
+<b class="fc"><i>296</i>&nbsp;    Map&lt;Integer, ScheduledFuture&lt;?&gt;&gt; scheduledFutures = new HashMap&lt;&gt;();</b>
+<i>297</i>&nbsp;
+<i>298</i>&nbsp;    private void addScheduledTask(int roomId, Runnable task, int microSecs) {
+<b class="nc"><i>299</i>&nbsp;        scheduledFutures.put(roomId,</b>
+<b class="nc"><i>300</i>&nbsp;                threadPoolTaskScheduler.schedule(task, triggerUtil.createMicroSecLevelTrigger(microSecs)));</b>
+<b class="nc"><i>301</i>&nbsp;    }</b>
+<i>302</i>&nbsp;
+<i>303</i>&nbsp;    @SkipToken
+<i>304</i>&nbsp;    @RequestMapping(value = &quot;/clearAll&quot;, method = RequestMethod.GET)
+<i>305</i>&nbsp;    public void clearAll() {
+<b class="nc"><i>306</i>&nbsp;        for (Map.Entry&lt;Integer, ScheduledFuture&lt;?&gt;&gt; scheduledFutureEntry : scheduledFutures.entrySet()) {</b>
+<b class="nc"><i>307</i>&nbsp;            ScheduledFuture&lt;?&gt; scheduledFuture = scheduledFutureEntry.getValue();</b>
+<b class="nc"><i>308</i>&nbsp;            scheduledFuture.cancel(true);</b>
+<b class="nc"><i>309</i>&nbsp;            while (!scheduledFuture.isCancelled()) {</b>
+<b class="nc"><i>310</i>&nbsp;                scheduledFuture.cancel(true);</b>
+<i>311</i>&nbsp;            }
+<b class="nc"><i>312</i>&nbsp;        }</b>
+<b class="nc"><i>313</i>&nbsp;        sessions.clear();</b>
+<b class="nc"><i>314</i>&nbsp;    }</b>
+<i>315</i>&nbsp;
+<i>316</i>&nbsp;    @SkipToken
+<i>317</i>&nbsp;    @RequestMapping(value = &quot;/greet&quot;, method = RequestMethod.GET)
+<i>318</i>&nbsp;    public String greet(@RequestParam String name) {
+<b class="nc"><i>319</i>&nbsp;        System.out.println(&quot;receive greet from &quot; + name);</b>
+<b class="nc"><i>320</i>&nbsp;        return &quot;Hello &quot; + name + &quot;!&quot;;</b>
+<i>321</i>&nbsp;    }
+<i>322</i>&nbsp;}
+</div>
+</div>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2021-09-04 20:54</div>
+</div>
+</body>
+</html>

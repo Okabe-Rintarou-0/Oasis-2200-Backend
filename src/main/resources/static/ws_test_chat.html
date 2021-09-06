@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<script type="text/javascript" src="js/stomp.min.js"></script>
+<script type="text/javascript" src="js/sockjs.min.js"></script>
+<script type="text/javascript">
+    let SERVER_NAME = "localhost";
+    let url = `my-ws/websocket`;
+    let ws = new SockJS(url);
+    stompClient = Stomp.over(ws);
+    stompClient.connect({}, frame => {
+        //订阅消息
+        stompClient.subscribe('/topic/message', data => {
+            console.log(data.body);
+        })
+    });
+</script>
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<p>Hello World</p>
+<p id="message"></p>
+</body>
+</html>

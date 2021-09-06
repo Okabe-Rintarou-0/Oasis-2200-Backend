@@ -1,0 +1,120 @@
+
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html id="htmlId">
+<head>
+  <title>Coverage Report :: ArchiveController</title>
+  <style type="text/css">
+    @import "../../.css/coverage.css";
+  </style>
+</head>
+
+<body>
+<div class="header"></div>
+
+<div class="content">
+<div class="breadCrumbs">
+    [ <a href="../../index.html">all classes</a> ]
+    [ <a href="../index.html">com.game.controller</a> ]
+</div>
+
+<h1>Coverage Summary for Class: ArchiveController (com.game.controller)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">ArchiveController</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/ 1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (4/ 4)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (5/ 5)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<div class="sourceCode"><i>1</i>&nbsp;package com.game.controller;
+<i>2</i>&nbsp;
+<i>3</i>&nbsp;import com.game.entity.Archive;
+<i>4</i>&nbsp;import com.game.service.ArchiveService;
+<i>5</i>&nbsp;import com.game.utils.jwtUtils.JwtUtil;
+<i>6</i>&nbsp;import com.game.utils.sessionUtils.SessionUtil;
+<i>7</i>&nbsp;import io.swagger.annotations.Api;
+<i>8</i>&nbsp;import org.springframework.beans.factory.annotation.Autowired;
+<i>9</i>&nbsp;import org.springframework.web.bind.annotation.RequestBody;
+<i>10</i>&nbsp;import org.springframework.web.bind.annotation.RequestMapping;
+<i>11</i>&nbsp;import org.springframework.web.bind.annotation.RequestMethod;
+<i>12</i>&nbsp;import org.springframework.web.bind.annotation.RestController;
+<i>13</i>&nbsp;
+<i>14</i>&nbsp;import java.util.List;
+<i>15</i>&nbsp;
+<i>16</i>&nbsp;@Api(tags = &quot;´æµµÄ£¿é&quot;)
+<i>17</i>&nbsp;@RestController
+<b class="fc"><i>18</i>&nbsp;public class ArchiveController {</b>
+<i>19</i>&nbsp;
+<i>20</i>&nbsp;    @Autowired
+<i>21</i>&nbsp;    private ArchiveService archiveService;
+<i>22</i>&nbsp;
+<i>23</i>&nbsp;    @RequestMapping(value = &quot;/allArchives&quot;, method = RequestMethod.GET)
+<i>24</i>&nbsp;    public List&lt;Archive&gt; getAllArchives() {
+<b class="fc"><i>25</i>&nbsp;        return archiveService.findAll();</b>
+<i>26</i>&nbsp;    }
+<i>27</i>&nbsp;
+<i>28</i>&nbsp;    @RequestMapping(value = &quot;/saveArchive&quot;, method = RequestMethod.POST)
+<i>29</i>&nbsp;    public void saveArchive(@RequestBody String data) {
+<b class="fc"><i>30</i>&nbsp;        archiveService.saveArchive(data);</b>
+<b class="fc"><i>31</i>&nbsp;    }</b>
+<i>32</i>&nbsp;
+<i>33</i>&nbsp;    @RequestMapping(value = &quot;/archive&quot;, method = RequestMethod.GET)
+<i>34</i>&nbsp;    public Archive getArchive() {
+<b class="fc"><i>35</i>&nbsp;        return archiveService.getArchive(JwtUtil.getUserId());</b>
+<i>36</i>&nbsp;    }
+<i>37</i>&nbsp;}
+</div>
+</div>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2021-09-04 20:54</div>
+</div>
+</body>
+</html>

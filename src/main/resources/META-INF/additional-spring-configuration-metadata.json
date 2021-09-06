@@ -1,0 +1,23 @@
+{
+  "properties": [
+    {
+      "name": "jwt.accessTokenExpireTime",
+      "type": "java.lang.String",
+      "description": "Description for jwt.accessTokenExpireTime."
+    },
+    {
+      "name": "room.maxCount",
+      "type": "java.lang.Integer",
+      "description": "Description for room.maxCount."
+    },
+    {
+      "name": "cluster.strategy",
+      "type": "java.lang.String",
+      "description": "Description for cluster.strategy."
+    },
+    {
+      "name": "room.sectionSize",
+      "type": "java.lang.Integer",
+      "description": "Description for room.sectionSize."
+    }
+  ] }

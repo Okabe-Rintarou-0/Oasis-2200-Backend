@@ -1,0 +1,137 @@
+
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html id="htmlId">
+<head>
+  <title>Coverage Report :: FrameSyncController</title>
+  <style type="text/css">
+    @import "../../.css/coverage.css";
+  </style>
+</head>
+
+<body>
+<div class="header"></div>
+
+<div class="content">
+<div class="breadCrumbs">
+    [ <a href="../../index.html">all classes</a> ]
+    [ <a href="../index.html">com.game.controller</a> ]
+</div>
+
+<h1>Coverage Summary for Class: FrameSyncController (com.game.controller)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">FrameSyncController</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/ 1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (4/ 4)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (9/ 9)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<div class="sourceCode"><i>1</i>&nbsp;package com.game.controller;
+<i>2</i>&nbsp;
+<i>3</i>&nbsp;import com.game.entity.Frame;
+<i>4</i>&nbsp;import com.game.service.FrameSyncService;
+<i>5</i>&nbsp;import com.game.utils.messageUtils.Message;
+<i>6</i>&nbsp;import com.game.utils.messageUtils.MessageUtil;
+<i>7</i>&nbsp;import io.swagger.annotations.Api;
+<i>8</i>&nbsp;import org.springframework.beans.factory.annotation.Autowired;
+<i>9</i>&nbsp;import org.springframework.messaging.handler.annotation.DestinationVariable;
+<i>10</i>&nbsp;import org.springframework.messaging.handler.annotation.MessageMapping;
+<i>11</i>&nbsp;import org.springframework.messaging.simp.SimpMessagingTemplate;
+<i>12</i>&nbsp;import org.springframework.web.bind.annotation.RequestMapping;
+<i>13</i>&nbsp;import org.springframework.web.bind.annotation.RequestMethod;
+<i>14</i>&nbsp;import org.springframework.web.bind.annotation.RequestParam;
+<i>15</i>&nbsp;import org.springframework.web.bind.annotation.RestController;
+<i>16</i>&nbsp;
+<i>17</i>&nbsp;@Api(tags = &quot;帧同步模块&quot;)
+<i>18</i>&nbsp;@RestController
+<b class="fc"><i>19</i>&nbsp;public class FrameSyncController {</b>
+<i>20</i>&nbsp;
+<i>21</i>&nbsp;    @Autowired
+<i>22</i>&nbsp;    FrameSyncService frameSyncService;
+<i>23</i>&nbsp;
+<i>24</i>&nbsp;    @Autowired
+<i>25</i>&nbsp;    SimpMessagingTemplate simpMessagingTemplate;
+<i>26</i>&nbsp;
+<i>27</i>&nbsp;    @RequestMapping(value = &quot;/startSync&quot;, method = RequestMethod.GET) //just for test
+<i>28</i>&nbsp;    public Message startSync(@RequestParam Integer roomId) {
+<b class="fc"><i>29</i>&nbsp;        if (frameSyncService.startSync(roomId)) {</b>
+<b class="fc"><i>30</i>&nbsp;            return MessageUtil.createMessage(MessageUtil.STAT_OK, &quot;开启成功!&quot;);</b>
+<i>31</i>&nbsp;        } else {
+<b class="fc"><i>32</i>&nbsp;            return MessageUtil.createMessage(MessageUtil.STAT_INVALID, &quot;开启失败!&quot;);</b>
+<i>33</i>&nbsp;        }
+<i>34</i>&nbsp;    }
+<i>35</i>&nbsp;
+<i>36</i>&nbsp;    @RequestMapping(value = &quot;/stopSync&quot;, method = RequestMethod.GET)
+<i>37</i>&nbsp;    public Message stopSync(@RequestParam Integer roomId) {
+<b class="fc"><i>38</i>&nbsp;        if (frameSyncService.stopSync(roomId)) {</b>
+<b class="fc"><i>39</i>&nbsp;            return MessageUtil.createMessage(MessageUtil.STAT_OK, &quot;关闭成功!&quot;);</b>
+<i>40</i>&nbsp;        } else {
+<b class="fc"><i>41</i>&nbsp;            return MessageUtil.createMessage(MessageUtil.STAT_INVALID, &quot;关闭失败！&quot;);</b>
+<i>42</i>&nbsp;        }
+<i>43</i>&nbsp;    }
+<i>44</i>&nbsp;
+<i>45</i>&nbsp;    @MessageMapping(&quot;/uploadFrame/{roomId}/{gameId}&quot;)
+<i>46</i>&nbsp;    public void uploadFrameData(Frame frame, @DestinationVariable(value = &quot;roomId&quot;) String roomId,
+<i>47</i>&nbsp;                                @DestinationVariable(value = &quot;gameId&quot;) String gameId) {
+<i>48</i>&nbsp;        //gameId是每个玩家在后端的唯一标识
+<i>49</i>&nbsp;        // System.out.printf(&quot;roomId = %s, gameId = %s, data = %s%n&quot;, roomId, gameId, JSON.toJSONString(frame));
+<i>50</i>&nbsp;        // LogUtil.print(String.format(&quot;roomId = %s, gameId = %s, data = %s&quot;, roomId, gameId, JSON.toJSONString(frame)));
+<b class="fc"><i>51</i>&nbsp;        frameSyncService.addFrame(Integer.parseInt(roomId), Integer.parseInt(gameId), frame);</b>
+<b class="fc"><i>52</i>&nbsp;    }</b>
+<i>53</i>&nbsp;
+<i>54</i>&nbsp;}
+</div>
+</div>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2021-09-04 20:54</div>
+</div>
+</body>
+</html>
