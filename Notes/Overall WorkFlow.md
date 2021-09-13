@@ -45,6 +45,10 @@ Redisson原理参考：
 
 本系统采用Nginx，通过读取Cookies中的roomId值，进行一致性Hash，保证同一个房间对战的玩家，其请求都被发往同一台服务器。尤其是websocket连接，如果两台客户端的websocket连在了两台服务器进行对战，那还要进行数据的转发。这对于玩家这种需要发送和接受大量数据的应用场景是得不偿失的。所以通过上诉方法，可以保证处于同一房间客户端的websocket连接的是同一台服务器，这样就能较为容易地进行帧同步和状态同步的数据收发、数据广播。
 
+### Nginx配置文件
+
+![image](https://cdn.jsdelivr.net/gh/Okabe-Rintarou-0/web-images@master/books/image.6v86dwz8eiw0.png)
+
 ### 基于STOMP协议的Websocket
 
 该系统采用规范的STOMP协议。该协议可以很方便地实现发布订阅的功能。参与战斗的玩家都会有一个房间号，玩家只需要订阅该房间对应的主题(Topic)即可接受、发送战斗信息。
