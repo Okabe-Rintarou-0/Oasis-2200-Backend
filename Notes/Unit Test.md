@@ -18,7 +18,7 @@ Controller=>Service=>Dao=>Repository
 
 计算机界有一句名言：没有什么是加一层解决不了的问题，如果有，那就再加一层。上面这个是最基础的分层，真正的系统的层数会比这多得多。比如Dao层上面还可能加一层Dto层。
 
-如此多的分层对测试也会带来一定的难度，所以Mockito由此而生。Mockito通过Mock（模拟）对象的行为（用户可自定义），以屏蔽待测试的层下面所有的层。即：如果我测试的是Service层，那我可以利用Mockito模拟Dao层的行为。Dao层内部，乃至Dao以下的所有层的实现方式我全都不关心，因为测试的时候并不会真正执行这些行为，而是会按照用户给定的行为执行。这实际上有点类似黑匣子，将较低层的实现进行了屏蔽。这给测试带来了极大便利，程序员可以很容易地写出相应的测试代码。
+如此多的分层对测试也会带来一定的难度，所以Mockito由此而生。Mockito通过Mock（模拟）对象的行为（用户可自定义），以屏蔽待测试的层下面所有的层。即：如果我测试的是Service层，那我可以利用Mockito模拟Dao层的行为。Dao层内部，乃至Dao以下的所有层的实现方式我全都不关心，因为测试的时候并不会真正执行这些行为，而是会按照用户给定的行为执行。这实际上有点类似黑匣子，将较低层的数据进行了屏蔽。这给测试带来了极大便利，程序员可以很容易地写出相应的测试代码。
 
 而且在逻辑上，这种测试方式也不存在问题。如果最外层和最低层都不采用Mockito进行测试，真正应用Spring Boot环境进行测试，并且通过了测试。而这些中间层又通过Mockito测试，那么就可以将这些测试串联起来，证明整套系统的可行性、正确性。
 
@@ -66,7 +66,7 @@ Controller=>Service=>Dao=>Repository
 
   该Annotation可以直接作用于测试方法上，被标注的方法会在测试的时候显示如下小标题，主要是辅助测试，增加测试的可读性，易用性，帮助其他程序员更好理解测试内容。
 
-  ![QQ截图20210910105216](https://raw.githubusercontent.com/Okabe-Rintarou-0/web-images/master/books/QQ截图20210910105216.13iix35ipqf4.png)
+![QQ截图20210910105216](https://raw.githubusercontent.com/Okabe-Rintarou-0/web-images/master/books/QQ截图20210910105216.13iix35ipqf4.png)
 
 + **@BeforeEach**
 
@@ -216,7 +216,7 @@ Controller=>Service=>Dao=>Repository
   | Enum Constant and Description                                |
   | :----------------------------------------------------------- |
   | `ANY`  Replace the DataSource bean whether it was auto-configured or manually defined. |
-  | `AUTO_CONFIGURED`  Only replace the DataSource if it was auto-configured. |
+  | `AUTO_CONFIGURED `Only replace the DataSource if it was auto-configured. |
   | `NONE`  Don't replace the application default DataSource.    |
 
 一般：
@@ -280,8 +280,6 @@ Controller=>Service=>Dao=>Repository
   ```java
   import org.mockito.Mockito;
   ```
-  
-  如果选择这种方式，必须初始化：MockitoAnnotations.initMocks(this);
 
   举例：
 
@@ -291,8 +289,8 @@ Controller=>Service=>Dao=>Repository
     ```
 
   + ```java
-    Mockito.when(userDao.saveUserAuthority(Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyInt()))
-            .thenReturn(new UserAuthority(1, "123", "123", "123", 1));
+            Mockito.when(userDao.saveUserAuthority(Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyInt()))
+                    .thenReturn(new UserAuthority(1, "123", "123", "123", 1));
     ```
 
 + given(...).willReturn(...)
