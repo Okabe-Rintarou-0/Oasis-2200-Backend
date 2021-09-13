@@ -53,13 +53,13 @@ Redisson原理参考：
 
 + 客户端1发送创房请求，创建成功，获取房间ID；此时Redis中更新房间系统；客户端1带上含有房间ID的Cookies发送websocket请求，Nginx通过一致性Hash分配到某一服务器，比如(192.168.0.51)，完成和服务器的websocket连接。
 
-![image](https://cdn.jsdelivr.net/gh/Okabe-Rintarou-0/web-images@master/books/image.1aln8wy54tmo.png)
+  ![image](https://cdn.jsdelivr.net/gh/Okabe-Rintarou-0/web-images@master/books/image.1aln8wy54tmo.png)
 
 + 客户端2发送入房请求，加入成功，获取房间ID；此时Redis中更新房间系统；客户端1带上含有房间ID的Cookies发送websocket请求，Nginx通过一致性Hash分配到某一服务器，比如(192.168.0.51)，完成和服务器的websocket连接，此时两台处于同一房间的客户端均和同一台服务器建立了websocket连接。
 
-![image](https://cdn.jsdelivr.net/gh/Okabe-Rintarou-0/web-images@master/books/image.1y0w3dti0m0w.png)
+  ![image](https://cdn.jsdelivr.net/gh/Okabe-Rintarou-0/web-images@master/books/image.1y0w3dti0m0w.png)
 
-![image](https://cdn.jsdelivr.net/gh/Okabe-Rintarou-0/web-images@master/books/image.2ns848j2lds0.png)
+  ![image](https://cdn.jsdelivr.net/gh/Okabe-Rintarou-0/web-images@master/books/image.2ns848j2lds0.png)
 
 此时即可开始通过websocket进行战斗数据的转发和广播。
 
@@ -71,11 +71,10 @@ Redisson原理参考：
 
 + 玩家登陆，获取token。
 
-![image](https://cdn.jsdelivr.net/gh/Okabe-Rintarou-0/web-images@master/books/image.1krmwv7sndy8.png)
+  ![image](https://cdn.jsdelivr.net/gh/Okabe-Rintarou-0/web-images@master/books/image.1krmwv7sndy8.png)
 
 + 客户端1进行websocket连接。
-
-  ![image-20210913093053341](C:\Users\92304\AppData\Roaming\Typora\typora-user-images\image-20210913093053341.png)
+  ![image-20210913093051502](https://cdn.jsdelivr.net/gh/Okabe-Rintarou-0/web-images@master/books/image-20210913093051502.51rccizpn3k0.png)
 
 + 客户端2进行类似操作。
 
