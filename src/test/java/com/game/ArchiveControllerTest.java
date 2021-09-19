@@ -41,7 +41,7 @@ public class ArchiveControllerTest {
         headers.add("X-Authorization", hostToken);
         System.out.println("token = " + hostToken);
         HttpEntity<String> httpEntity = new HttpEntity<>(headers);
-        ResponseEntity<Archive[]> response = testRestTemplate.exchange("/allArchives", HttpMethod.GET, httpEntity, Archive[].class);
+        ResponseEntity<Archive[]> response = testRestTemplate.exchange("/archive/getAll", HttpMethod.GET, httpEntity, Archive[].class);
         Archive[] archives = response.getBody();
         Assertions.assertNotNull(archives);
         Assertions.assertNotEquals(archives.length, 0);
@@ -55,7 +55,7 @@ public class ArchiveControllerTest {
         headers.add("X-Authorization", token);
         System.out.println("token = " + token);
         HttpEntity<String> httpEntity = new HttpEntity<>(headers);
-        ResponseEntity<Archive> response = testRestTemplate.exchange("/archive", HttpMethod.GET, httpEntity, Archive.class);
+        ResponseEntity<Archive> response = testRestTemplate.exchange("/archive/get", HttpMethod.GET, httpEntity, Archive.class);
         Archive archives = response.getBody();
         Assertions.assertNotNull(archives);
     }
@@ -74,9 +74,9 @@ public class ArchiveControllerTest {
         HttpEntity<String> httpEntity = new HttpEntity<>(archive.toString(), headers);
 
 
-        testRestTemplate.exchange("/saveArchive", HttpMethod.POST, httpEntity, Object.class);
+        testRestTemplate.exchange("/archive/save", HttpMethod.POST, httpEntity, Object.class);
 
-        ResponseEntity<Archive> response = testRestTemplate.exchange("/archive", HttpMethod.GET, httpEntity, Archive.class);
+        ResponseEntity<Archive> response = testRestTemplate.exchange("/archive/get", HttpMethod.GET, httpEntity, Archive.class);
         Archive archives = response.getBody();
 
         Assertions.assertNotNull(archives);

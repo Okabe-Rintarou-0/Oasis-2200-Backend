@@ -18,7 +18,7 @@ public class StatusSyncController {
     @Autowired
     private StatusSyncService statusSyncService;
 
-    @MessageMapping("/statSync/{roomId}")
+    @MessageMapping("/statusSync/{roomId}")
     public void statusSync(Map<String, List<PlayerStatus>> status, @DestinationVariable(value = "roomId") String roomId) {
         //LogUtil.print("receive status: " + JSON.toJSONString(status));
         statusSyncService.statusSync(Integer.parseInt(roomId), status);

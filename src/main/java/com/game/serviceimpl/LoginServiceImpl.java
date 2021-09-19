@@ -25,9 +25,4 @@ public class LoginServiceImpl implements LoginService {
         }
         return MessageUtil.createMessage(MessageUtil.STAT_INVALID, MessageUtil.MSG_LOGIN_INVALID);
     }
-
-    @Override
-    public UserAuthority findUserAuthorityByUsername(String username) {
-        return userDao.findUserAuthorityByUsername(username);
-    }
 }

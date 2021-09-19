@@ -45,13 +45,4 @@ public class LoginServiceUnitTest {
         message = loginService.login("111", "111");
         Assertions.assertEquals(message.status, MessageUtil.STAT_INVALID);
     }
-
-    @Test
-    @DisplayName("测试根据用户名获取用户auth")
-    public void getAuthByUsername() {
-        UserAuthority testAuthority = new UserAuthority(1, "123", "123", "123", 1);
-        Mockito.when(userDao.findUserAuthorityByUsername("lzh"))
-                .thenReturn(testAuthority);
-        Assertions.assertEquals(testAuthority, loginService.findUserAuthorityByUsername("lzh"));
-    }
 }

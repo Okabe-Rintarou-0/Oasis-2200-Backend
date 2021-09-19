@@ -1,8 +1,10 @@
 package com.game.service;
 
 import com.game.entity.CharacterInfo;
+import com.game.entity.PlayerStatus;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author lzh
@@ -19,4 +21,6 @@ public interface CombatCacheService {
     void endCombat(int myId, int winner);
 
     boolean uploadPlayerInfo(int myId, List<CharacterInfo> info);
+
+    Map<String, List<CharacterInfo>> getPlayerInfo(int roomId);
 }

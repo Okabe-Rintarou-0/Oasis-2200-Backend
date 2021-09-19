@@ -125,7 +125,7 @@ public class StatusSyncControllerTest {
         Runnable sendStatusTask = () -> {
             //host sends the status message
             System.out.println("send");
-            hostStompSession.send("/app/statSync/0", statuses);
+            hostStompSession.send("/app/statusSync/0", statuses);
         };
 
         //一秒一次

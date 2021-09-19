@@ -6,8 +6,8 @@ import java.util.List;
 import java.util.Map;
 
 public interface ChatService {
-   void sendMessage(String category, String name, String summary);
-   List<ChatMessage> getMessages();
+   void sendMessage(String username, String message);
+   List<String> getMessages();
    void clearMessages();
 
 }

@@ -6,6 +6,7 @@ import com.game.dao.CombatCacheDao;
 import com.game.dao.RoomCacheDao;
 import com.game.dto.RoomFeatureDto;
 import com.game.entity.CharacterInfo;
+import com.game.entity.PlayerStatus;
 import com.game.service.CombatCacheService;
 import com.game.service.FrameSyncService;
 import com.game.utils.jwtUtils.JwtUtil;
@@ -107,6 +108,9 @@ public class CombatCacheServiceImpl implements CombatCacheService {
             if (res) {
                 roomId = roomCacheDao.inWhichRoom(myId);
                 denySucceed = roomCacheDao.canAcceptOrDeny(myId, roomId);
+                if (denySucceed) {
+                    roomCacheDao.removeRoom(roomId);
+                }
                 LogUtil.info("successfully deny");
             }
         } catch (InterruptedException e) {
@@ -195,5 +199,10 @@ public class CombatCacheServiceImpl implements CombatCacheService {
             combatCacheDao.clearPlayerInfo(roomId); //删除
         }
         return uploadSucceed;
+    }
+
+    @Override
+    public Map<String, List<CharacterInfo>> getPlayerInfo(int roomId) {
+        return combatCacheDao.getPlayerInfo(roomId);
     }
 }

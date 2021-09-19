@@ -1,10 +1,12 @@
 package com.game;
 
 import com.alibaba.fastjson.JSON;
+import com.game.entity.Archive;
 import com.game.entity.Frame;
 import com.game.utils.messageUtils.Message;
 import com.game.utils.messageUtils.MessageUtil;
 import com.game.utils.testUtils.StompSessionBuilder;
+import com.game.utils.testUtils.TokenTestUtil;
 import com.game.utils.triggerUtils.TriggerUtil;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -14,11 +16,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.web.server.LocalServerPort;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.converter.MappingJackson2MessageConverter;
 import org.springframework.messaging.simp.stomp.StompFrameHandler;
 import org.springframework.messaging.simp.stomp.StompHeaders;
 import org.springframework.messaging.simp.stomp.StompSession;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
+import org.springframework.util.LinkedMultiValueMap;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -38,6 +44,9 @@ public class FrameSyncControllerTest {
 
     @Autowired
     TriggerUtil triggerUtil;
+
+    @Autowired
+    TokenTestUtil tokenTestUtil;
 
     private ConcurrentMap<Integer, BlockingQueue<String>> stompMessages;
 
@@ -76,10 +85,18 @@ public class FrameSyncControllerTest {
             });
             stompSessions.add(stompSession);
         }
-
-        Message message = testRestTemplate.getForObject("/startSync?roomId=0", Message.class);
+        String token = tokenTestUtil.getTestToken("lzh");
+        LinkedMultiValueMap<String, String> headers = new LinkedMultiValueMap<>();
+        headers.add("X-Authorization", token);
+        System.out.println("token = " + token);
+        HttpEntity<String> httpEntity = new HttpEntity<>(headers);
+        ResponseEntity<Message> response = testRestTemplate.exchange("/frameSync/start?roomId=0", HttpMethod.GET, httpEntity, Message.class);
+        Message message = response.getBody();
+        Assertions.assertNotNull(message);
         Assertions.assertEquals(message.status, MessageUtil.STAT_OK);
-        message = testRestTemplate.getForObject("/startSync?roomId=0", Message.class);
+        response = testRestTemplate.exchange("/frameSync/start?roomId=0", HttpMethod.GET, httpEntity, Message.class);
+        message = response.getBody();
+        Assertions.assertNotNull(message);
         Assertions.assertEquals(message.status, MessageUtil.STAT_INVALID);
         List<Runnable> sendFrameTasks = new ArrayList<>();
         for (int i = 0; i < 2; ++i) {
@@ -100,30 +117,59 @@ public class FrameSyncControllerTest {
         for (ScheduledFuture<?> future : scheduledFutures) {
             future.cancel(true);
         }
-
-        message = testRestTemplate.getForObject("/stopSync?roomId=0", Message.class);
+        response = testRestTemplate.exchange("/frameSync/stop?roomId=0", HttpMethod.GET, httpEntity, Message.class);
+        message = response.getBody();
+        Assertions.assertNotNull(message);
         Assertions.assertEquals(message.status, MessageUtil.STAT_OK);
-        message = testRestTemplate.getForObject("/stopSync?roomId=0", Message.class);
+        response = testRestTemplate.exchange("/frameSync/stop?roomId=0", HttpMethod.GET, httpEntity, Message.class);
+        message = response.getBody();
+        Assertions.assertNotNull(message);
         Assertions.assertEquals(message.status, MessageUtil.STAT_INVALID);
     }
 
     @Test
     @DisplayName("测试打开关闭帧同步接口(startSync)")
     public void testStartStopSync() {
-        Message message = testRestTemplate.getForObject("/startSync?roomId=0", Message.class);
+        String token = tokenTestUtil.getTestToken("lzh");
+        LinkedMultiValueMap<String, String> headers = new LinkedMultiValueMap<>();
+        headers.add("X-Authorization", token);
+        System.out.println("token = " + token);
+        HttpEntity<String> httpEntity = new HttpEntity<>(headers);
+
+        ResponseEntity<Message> response = testRestTemplate.exchange("/frameSync/start?roomId=0", HttpMethod.GET, httpEntity, Message.class);
+        Message message = response.getBody();
+        Assertions.assertNotNull(message);
         Assertions.assertEquals(message.status, MessageUtil.STAT_OK);
-        message = testRestTemplate.getForObject("/startSync?roomId=1", Message.class);
+
+        response = testRestTemplate.exchange("/frameSync/start?roomId=1", HttpMethod.GET, httpEntity, Message.class);
+        message = response.getBody();
+        Assertions.assertNotNull(message);
         Assertions.assertEquals(message.status, MessageUtil.STAT_OK);
-        message = testRestTemplate.getForObject("/startSync?roomId=0", Message.class);
+
+        response = testRestTemplate.exchange("/frameSync/start?roomId=0", HttpMethod.GET, httpEntity, Message.class);
+        message = response.getBody();
+        Assertions.assertNotNull(message);
         Assertions.assertEquals(message.status, MessageUtil.STAT_INVALID);
+
         //can't stop sync for non-existent room
-        message = testRestTemplate.getForObject("/stopSync?roomId=2", Message.class);
+        response = testRestTemplate.exchange("/frameSync/stop?roomId=2", HttpMethod.GET, httpEntity, Message.class);
+        message = response.getBody();
+        Assertions.assertNotNull(message);
         Assertions.assertEquals(message.status, MessageUtil.STAT_INVALID);
-        message = testRestTemplate.getForObject("/stopSync?roomId=0", Message.class);
+
+        response = testRestTemplate.exchange("/frameSync/stop?roomId=0", HttpMethod.GET, httpEntity, Message.class);
+        message = response.getBody();
+        Assertions.assertNotNull(message);
         Assertions.assertEquals(message.status, MessageUtil.STAT_OK);
-        message = testRestTemplate.getForObject("/stopSync?roomId=0", Message.class);
+
+        response = testRestTemplate.exchange("/frameSync/stop?roomId=0", HttpMethod.GET, httpEntity, Message.class);
+        message = response.getBody();
+        Assertions.assertNotNull(message);
         Assertions.assertEquals(message.status, MessageUtil.STAT_INVALID);
-        message = testRestTemplate.getForObject("/startSync?roomId=0", Message.class);
+
+        response = testRestTemplate.exchange("/frameSync/start?roomId=0", HttpMethod.GET, httpEntity, Message.class);
+        message = response.getBody();
+        Assertions.assertNotNull(message);
         Assertions.assertEquals(message.status, MessageUtil.STAT_OK);
     }
 }

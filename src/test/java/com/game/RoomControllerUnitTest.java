@@ -23,7 +23,7 @@
 //import java.nio.charset.StandardCharsets;
 //
 //import static org.mockito.BDDMockito.given;
-//import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+//import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 //
 ///*
 // * 测试基本上可以分为两种，一种是SpringBootTest，一种是WebMvbTest

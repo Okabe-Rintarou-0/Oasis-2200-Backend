@@ -2,131 +2,111 @@ package com.game.controller;
 
 import com.game.annotation.SkipToken;
 import com.game.constants.NetworkConstants;
+import com.game.dao.CombatCacheDao;
 import com.game.dto.RoomDto;
 import com.game.dto.RoomFeatureDto;
-
+import com.game.entity.CharacterInfo;
 import com.game.entity.Frame;
+import com.game.entity.PlayerStatus;
+import com.game.service.CombatCacheService;
 import com.game.service.RoomCacheService;
-
 import com.game.utils.ipUtils.IpUtil;
 import com.game.utils.jwtUtils.JwtUtil;
 import com.game.utils.logUtils.LogUtil;
 import com.game.utils.messageUtils.Message;
+import com.game.utils.redisUtils.RedisMessageManager;
 import com.game.utils.testUtils.ClusterTestUtil;
+import com.game.utils.testUtils.StompSessionBuilder;
 import com.game.utils.triggerUtils.TriggerUtil;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
-
 import org.springframework.beans.factory.annotation.Autowired;
-
-import org.springframework.context.annotation.Bean;
-import org.springframework.messaging.converter.MappingJackson2MessageConverter;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
-import org.springframework.scheduling.config.ScheduledTask;
-import org.springframework.web.bind.annotation.*;
-import com.game.entity.User;
-import com.game.utils.messageUtils.MessageUtil;
-import com.game.utils.redisUtils.RedisMessageManager;
-import com.game.utils.testUtils.StompSessionBuilder;
-import net.sf.json.JSONObject;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.messaging.converter.MappingJackson2MessageConverter;
 import org.springframework.messaging.converter.StringMessageConverter;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.messaging.simp.stomp.StompFrameHandler;
 import org.springframework.messaging.simp.stomp.StompHeaders;
 import org.springframework.messaging.simp.stomp.StompSession;
-
+import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
+import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.PostConstruct;
-import javax.servlet.http.HttpSession;
 import java.lang.reflect.Type;
 import java.net.SocketException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeoutException;
-
-import java.net.InetAddress;
-import java.net.NetworkInterface;
 
 @Api(tags = "测试模块")
 @RestController
 @RequestMapping("/test")
 public class TestController {
-    private static String getMACAddress(InetAddress ia) throws Exception {
-        // 获得网络接口对象（即网卡），并得到mac地址，mac地址存在于一个byte数组中。
-        byte[] mac = NetworkInterface.getByInetAddress(ia).getHardwareAddress();
-        // 下面代码是把mac地址拼装成String
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < mac.length; i++) {
-            if (i != 0) {
-                sb.append("-");
-            }
-            // mac[i] & 0xFF 是为了把byte转化为正整数
-            String s = Integer.toHexString(mac[i] & 0xFF);
-            // System.out.println("--------------");
-            // System.err.println(s);
-            sb.append(s.length() == 1 ? 0 + s : s);
-        }
-        // 把字符串所有小写字母改为大写成为正规的mac地址并返回
-        return sb.toString().toUpperCase();
-    }
-
-    @RequestMapping(value = "/serverTest", method = RequestMethod.GET)
-    public String getServerName() throws Exception {
-        InetAddress ia = null;
-        String a = "777";
-        ia = InetAddress.getLocalHost();
-        String localname = ia.getHostName();
-        String localip = ia.getHostAddress();
-        InetAddress ia1 = InetAddress.getLocalHost();// 获取本地IP对象
-        a += "本机名称是：" + localname + '\n';
-        a += "本机的ip是 ：" + localip + '\n';
-//        a += "本机的MAC是 ：" + getMACAddress(ia1) + '\n';
-        return a;
-    }
-
-    @RequestMapping(value = "/ip", method = RequestMethod.GET)
-    public String getIntraNet() throws SocketException {
-        return IpUtil.getIntranetIp();
-    }
-
     @Autowired
     RedisMessageManager redisMessageManager;
 
     @Autowired
     RedisTemplate<String, Object> redisTemplate;
 
-    private StompSession testSession = null;
-
-    @RequestMapping(value = "/getUser", method = RequestMethod.GET)
-    @Cacheable(value = "userKey")
-    public User getUser() {
-        User user = new User(0, "123", "123");
-        System.out.println("若下面没出现“无缓存的时候调用”字样且能打印出数据表示测试成功");
-        return user;
-    }
-
-    @RequestMapping(value = "/uid", method = RequestMethod.GET)
-    String uid(HttpSession session) {
-        UUID uid = (UUID) session.getAttribute("uid");
-        if (uid == null) {
-            uid = UUID.randomUUID();
-        }
-        session.setAttribute("uid", uid);
-        return session.getId();
-    }
-
-    @RequestMapping(value = "/sendRedis", method = RequestMethod.GET)
-    void sendMessage() {
-        redisMessageManager.sendObject("room", MessageUtil.createMessage(MessageUtil.STAT_OK, "Hello from Redis.", JSONObject.fromObject(new User())));
-    }
-
     @Autowired
     String intraNetIp;
 
+    @Autowired
+    CombatCacheService combatCacheService;
+
+    @Autowired
+    RoomCacheService roomCacheService;
+
+    @Autowired
+    ClusterTestUtil clusterTestUtil;
+
+    @Autowired
+    LoginController loginController;
+
+    @Autowired
+    RegisterController registerController;
+
+    @Autowired
+    UserController userController;
+
+    @Autowired
+    SimpMessagingTemplate simpMessagingTemplate;
+
+    @Autowired
+    ThreadPoolTaskScheduler threadPoolTaskScheduler;
+
+    @Autowired
+    TriggerUtil triggerUtil;
+
+    private final Map<Integer, ScheduledFuture<?>> scheduledFutures = new HashMap<>();
+
+    private final List<StompSession> stompSessionList = new ArrayList<>();
+
+    private final List<StompSession> sessions = new ArrayList<>();
+
+    private final Map<String, Frame> data = new HashMap<>();
+
+    private StompSession testSession = null;
+
+    @PostConstruct
+    private void init() {
+        data.put("0", new Frame());
+        data.put("1", new Frame());
+    }
+
+    @ApiOperation(value = "获取访问的服务器的内网ip", notes = "获取访问的服务器的内网ip")
+    @RequestMapping(value = "/ip", method = RequestMethod.GET)
+    public String getIntraNet() throws SocketException {
+        return IpUtil.getIntranetIp();
+    }
+
+    @ApiOperation(value = "测试聊天", notes = "测试聊天")
+    @ApiImplicitParam(name = "testMessage", value = "聊天信息", required = true, paramType = "query")
     @RequestMapping(value = "/testChat", method = RequestMethod.GET)
     public String testChat(@RequestParam(value = "testMessage") String message) throws InterruptedException, ExecutionException, TimeoutException {
         LogUtil.print(String.format("chat with message: %s%n", message));
@@ -152,69 +132,36 @@ public class TestController {
         return "send testMessage";
     }
 
-    @Autowired
-    RoomCacheService roomCacheService;
-
-    @Autowired
-    ClusterTestUtil clusterTestUtil;
-
+    @ApiOperation(value = "获取所有房间信息", notes = "获取所有房间信息(基于redis)")
     @RequestMapping(value = "/getRoomFeatures", method = RequestMethod.GET)
     public Map<String, Map<String, RoomFeatureDto>> getRoomFeatures() {
         clusterTestUtil.logWhoImAndWhatIHaveCalled("getRoomFeatures");
         return roomCacheService.getRoomFeatures();
     }
 
-    @RequestMapping(value = "/createRoom", method = RequestMethod.GET)
-    public void createRoom(@RequestParam Integer userId) {
-        clusterTestUtil.logWhoImAndWhatIHaveCalled("createRoom");
-        roomCacheService.createRoom(userId);
-    }
-
-    @RequestMapping(value = "/joinRoom", method = RequestMethod.GET)
-    public void joinRoom(@RequestParam Integer userId) {
-        clusterTestUtil.logWhoImAndWhatIHaveCalled("joinRoom");
-        roomCacheService.joinRoom(userId);
-    }
-
+    @ApiOperation(value = "获取所有用户状态", notes = "获取所有房间状态(用户在哪个房间？)")
     @RequestMapping(value = "/users", method = RequestMethod.GET)
     public Map<String, Integer> getUserStates() {
         clusterTestUtil.logWhoImAndWhatIHaveCalled("getUserStates");
         return roomCacheService.getUserStates();
     }
 
+    @ApiOperation(value = "删除指定房间", notes = "删除指定房间(基于redis)")
+    @ApiImplicitParam(name = "roomId", value = "聊天信息", required = true, paramType = "query", dataType = "Integer")
     @RequestMapping(value = "/removeRoom", method = RequestMethod.GET)
     public void removeRoom(@RequestParam Integer roomId) {
         clusterTestUtil.logWhoImAndWhatIHaveCalled("removeRoom");
         roomCacheService.removeRoom(roomId);
     }
 
-    @RequestMapping(value = "/clear", method = RequestMethod.GET)
+    @ApiOperation(value = "清空房间", notes = "清空房间(基于redis)")
+    @RequestMapping(value = "/clearRoomContext", method = RequestMethod.GET)
     public void clearRoomContext() {
         clusterTestUtil.logWhoImAndWhatIHaveCalled("clearRoomContext");
         roomCacheService.clearRoomContext();
     }
 
-    @Autowired
-    LoginController loginController;
-
-    @Autowired
-    RegisterController registerController;
-
-    @Autowired
-    UserController userController;
-
-    private final List<StompSession> stompSessionList = new ArrayList<>();
-
-    private int getIdentity(String sessionId) {
-        if (sessionId == null) return -1;
-        int sum = 0;
-        for (int i = 0; i < sessionId.length(); ++i) {
-            sum += sessionId.charAt(i);
-        }
-        return sum % 2;
-    }
-
-    @ApiOperation("房间压力测试")
+    @ApiOperation(value = "房间压力测试", notes = "随机加入或创建房间，加入失败会再尝试一次")
     @RequestMapping(value = "/room", method = RequestMethod.GET)
     public String testRoom(@RequestParam(value = "testId") Integer testId) {
         int identity = testId % 2;
@@ -243,9 +190,8 @@ public class TestController {
         return identity == 1 ? "I am host" : "I am client";
     }
 
-    private List<StompSession> sessions = new ArrayList<>();
-
     @SkipToken
+    @ApiOperation(value = "帧同步压力测试", notes = "创建若干ws连接并订阅房间topics，开启帧同步")
     @RequestMapping(value = "/connectAndSub", method = RequestMethod.GET)
     public void testWsConnectAndSub(@RequestParam Integer id) throws InterruptedException, ExecutionException, TimeoutException {
         testSession = new StompSessionBuilder()
@@ -273,31 +219,13 @@ public class TestController {
         }, 66);
     }
 
-    @Autowired
-    SimpMessagingTemplate simpMessagingTemplate;
-
-    Map<String, Frame> data = new HashMap<>();
-
-    @PostConstruct
-    private void init() {
-        data.put("0", new Frame());
-        data.put("1", new Frame());
-    }
-
-    @Autowired
-    ThreadPoolTaskScheduler threadPoolTaskScheduler;
-
-    @Autowired
-    TriggerUtil triggerUtil;
-
-    Map<Integer, ScheduledFuture<?>> scheduledFutures = new HashMap<>();
-
     private void addScheduledTask(int roomId, Runnable task, int microSecs) {
         scheduledFutures.put(roomId,
                 threadPoolTaskScheduler.schedule(task, triggerUtil.createMicroSecLevelTrigger(microSecs)));
     }
 
     @SkipToken
+    @ApiOperation(value = "清除所有帧同步定时任务", notes = "清除所有帧同步定时任务")
     @RequestMapping(value = "/clearAll", method = RequestMethod.GET)
     public void clearAll() {
         for (Map.Entry<Integer, ScheduledFuture<?>> scheduledFutureEntry : scheduledFutures.entrySet()) {
@@ -311,9 +239,17 @@ public class TestController {
     }
 
     @SkipToken
+    @ApiOperation(value = "打个招呼", notes = "打个招呼吧")
     @RequestMapping(value = "/greet", method = RequestMethod.GET)
     public String greet(@RequestParam String name) {
         System.out.println("receive greet from " + name);
         return "Hello " + name + "!";
+    }
+
+    @SkipToken
+    @ApiOperation(value = "获取用户上传的信息", notes = "即playerInfo")
+    @GetMapping(value = "/playerInfo")
+    public Map<String, List<CharacterInfo>> getPlayerInfo(@RequestParam Integer roomId) {
+        return combatCacheService.getPlayerInfo(roomId);
     }
 }

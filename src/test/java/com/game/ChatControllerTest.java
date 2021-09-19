@@ -1,6 +1,7 @@
 package com.game;
 
 import com.alibaba.fastjson.JSON;
+import com.game.constants.NetworkConstants;
 import com.game.models.ChatMessage;
 import com.game.utils.messageUtils.Message;
 import com.game.utils.messageUtils.MessageUtil;
@@ -75,7 +76,7 @@ public class ChatControllerTest {
                 })
                 .get(1, SECONDS);
 
-        session.subscribe("/topics/chat", new StompFrameHandler() {
+        session.subscribe(NetworkConstants.TOPIC_CHAT, new StompFrameHandler() {
 
             @Override
             public Type getPayloadType(StompHeaders headers) {
@@ -89,8 +90,8 @@ public class ChatControllerTest {
             }
         });
 
-        session.send("/app/chatroom/" + tokenTestUtil.getTestToken("lzh"), "Mike");
-        session.send("/app/chatroom/123", "Mike");
+        session.send("/app/chat/" + tokenTestUtil.getTestToken("lzh"), "Mike");
+        session.send("/app/chat/123", "Mike");
     }
 
     @Autowired
@@ -103,13 +104,13 @@ public class ChatControllerTest {
         HttpHeaders hostHeaders = new HttpHeaders();
         hostHeaders.add("X-Authorization", hostToken);
         HttpEntity<String> hostHttpEntity = new HttpEntity<>(hostHeaders);
-        ResponseEntity<ChatMessage[]> response = testRestTemplate.exchange("/getChatMessages", HttpMethod.GET, hostHttpEntity, ChatMessage[].class);
+        ResponseEntity<ChatMessage[]> response = testRestTemplate.exchange("/chat/history/get", HttpMethod.GET, hostHttpEntity, ChatMessage[].class);
         ChatMessage[] chatMessages = response.getBody();
         Assertions.assertNotNull(chatMessages);
         System.out.println("Get Chat msg " + JSON.toJSONString(chatMessages));
 
-        testRestTemplate.exchange("/clearChatMessages", HttpMethod.GET, hostHttpEntity, ChatMessage[].class);
-        response = testRestTemplate.exchange("/getChatMessages", HttpMethod.GET, hostHttpEntity, ChatMessage[].class);
+        testRestTemplate.exchange("/chat/history/clear", HttpMethod.GET, hostHttpEntity, ChatMessage[].class);
+        response = testRestTemplate.exchange("/chat/history/get", HttpMethod.GET, hostHttpEntity, ChatMessage[].class);
         chatMessages = response.getBody();
         Assertions.assertNotNull(chatMessages);
         Assertions.assertEquals(chatMessages.length, 0);

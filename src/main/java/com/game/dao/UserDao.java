@@ -18,4 +18,6 @@ public interface UserDao {
     UserAuthority saveUserAuthority(String username, String password, String email, int identity);
 
     User saveUser(int userId, String nickname);
+
+    void removeUser(String username);
 }

@@ -2,7 +2,9 @@ package com.game.utils.redisUtils;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.game.constants.NetworkConstants;
+import com.game.context.ChatContext;
 import com.game.utils.logUtils.LogUtil;
 import com.game.utils.messageUtils.Message;
 import com.game.utils.messageUtils.MessageUtil;
@@ -32,13 +34,18 @@ public class RedisReceiverDelegate {
     private SimpMessagingTemplate simpMessagingTemplate;
 
     @Autowired
+    private ChatContext chatContext;
+
+    @Autowired
     private String intraNetIp;
 
     public void receiveChatMessage(Object message) {
-        System.out.printf("Receive message: %s%n", JSON.toJSONString(message));
         RedisMessage redisMessage = JSONObject.parseObject(JSON.toJSONString(message), RedisMessage.class);
         if (!redisMessage.intraNetIp.equals(intraNetIp)) {
-            simpMessagingTemplate.convertAndSend("/topics/chat", redisMessage.message);
+            String chatStr=redisMessage.message;
+            LogUtil.info("redis receiveChatMessage: "+chatStr);
+            simpMessagingTemplate.convertAndSend("/topics/chat", chatStr);
+            chatContext.addEvent(chatStr);
         }
         countDownLatch.countDown();
     }

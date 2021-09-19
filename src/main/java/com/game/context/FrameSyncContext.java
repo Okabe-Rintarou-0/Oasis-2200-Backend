@@ -5,6 +5,7 @@ import com.game.entity.Frame;
 import com.game.utils.triggerUtils.TriggerUtil;
 import net.sf.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 
 import java.util.concurrent.ConcurrentHashMap;
@@ -40,12 +41,16 @@ public class FrameSyncContext {
         return frames.get(roomId);
     }
 
+    @Value("${combat.frameSyncInterval}")
+    private Integer frameSyncInterval;
+
     //创建帧同步定时器
     public boolean addFrameSyncScheduler(int roomId, Runnable frameSyncTask) {
         if (frameSyncSchedulers.containsKey(roomId)) {
             return false; //若已存在，则无需添加
         }
-        ScheduledFuture<?> future = threadPoolTaskScheduler.schedule(frameSyncTask, triggerUtil.createMicroSecLevelTrigger(66));
+        ScheduledFuture<?> future =
+                threadPoolTaskScheduler.schedule(frameSyncTask, triggerUtil.createMicroSecLevelTrigger(frameSyncInterval));
         if (future == null) return false;
         frameSyncSchedulers.put(roomId, future);     //添加一个新的定时器
         if (frameSyncSchedulers.size() >= currentPoolSize) {
@@ -54,7 +59,7 @@ public class FrameSyncContext {
         }
         //动态扩大线程池
         frames.put(roomId, 0L);     //设置为第0帧
-        frameData.remove(roomId);
+        frameData.put(roomId, new ConcurrentHashMap<>());
         ConcurrentHashMap<Integer, Long> pingPongOfNewRoom = new ConcurrentHashMap<>();
         pingPongOfNewRoom.put(0, -1L);
         pingPongOfNewRoom.put(1, -1L);
@@ -77,6 +82,11 @@ public class FrameSyncContext {
         return true;
     }
 
+    public void removePingPong(int roomId) {
+        pingPong.remove(roomId);
+        frames.remove(roomId);
+    }
+
     public void toNextFrame(int roomId) {
         if (frames.containsKey(roomId)) {
             Long currentFrame = frames.get(roomId);
@@ -86,9 +96,6 @@ public class FrameSyncContext {
 
     //房间号为roomId的gameId玩家，上传了一个新网络包的情况
     public void addFrame(int roomId, int gameId, Frame frame) {
-        if (!frameData.containsKey(roomId)) {
-            frameData.put(roomId, new ConcurrentHashMap<>());
-        }
         ConcurrentHashMap<String, Frame> thisFrameData = frameData.get(roomId);
         String gameIdStr = "" + gameId;
         if (thisFrameData.containsKey(gameIdStr)) {
@@ -97,7 +104,8 @@ public class FrameSyncContext {
             thisFrameData.put(gameIdStr, frame);
         }
         ConcurrentHashMap<Integer, Long> pingPongOfThisRoom = pingPong.get(roomId);
-        pingPongOfThisRoom.put(gameId, getCurrentFrame(roomId));
+        if (pingPongOfThisRoom != null)
+            pingPongOfThisRoom.put(gameId, getCurrentFrame(roomId));
     }
 
     public void clearFrame(int roomId) {
@@ -134,5 +142,9 @@ public class FrameSyncContext {
     //please ignore and don't use it if you are not testing!
     public ConcurrentHashMap<Integer, Long> getFrames() {
         return frames;
+    }
+
+    public boolean combatStarted(int roomId) {
+        return frameSyncSchedulers.containsKey(roomId);
     }
 }

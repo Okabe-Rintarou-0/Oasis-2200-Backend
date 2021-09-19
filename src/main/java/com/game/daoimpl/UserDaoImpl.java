@@ -5,7 +5,6 @@ import com.game.entity.User;
 import com.game.entity.UserAuthority;
 import com.game.repository.UserAuthorityRepository;
 import com.game.repository.UserRepository;
-import com.game.utils.sessionUtils.SessionUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -52,6 +51,11 @@ public class UserDaoImpl implements UserDao {
     @Override
     public User saveUser(int userId, String nickname) {
         return userRepository.save(new User(userId, null, nickname));
+    }
+
+    @Override
+    public void removeUser(String username) {
+        userAuthorityRepository.removeUserAuthorityByUsername(username);
     }
 
     @Override

@@ -9,21 +9,16 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 @Context
 public class ChatContext {
-    private ConcurrentLinkedQueue<ChatMessage> eventQueue = new ConcurrentLinkedQueue<>();
+    private ConcurrentLinkedQueue<String> eventQueue = new ConcurrentLinkedQueue<>();
 
-    public boolean addEvent(ChatMessage chatMessage) {
-        enqueue(chatMessage);
-        return true;
-    }
-
-    private void enqueue(ChatMessage chatMessage) {
-        eventQueue.add(chatMessage);
-        if (eventQueue.size() > 20) {
+    public void addEvent(String chatStr) {
+        eventQueue.add(chatStr);
+        if (eventQueue.size() > 30) {
             eventQueue.remove();
         }
     }
 
-    public List<ChatMessage> getEventQueue() {
+    public List<String> getEventQueue() {
         return new ArrayList<>(eventQueue);
     }
 

@@ -13,10 +13,10 @@ public class ChatMessage {
    //private Date time = new Date();
    private String time;
    private String name;
-   private String description;
-   private String category;
+   private String description;//消息内容
+   //private String category;
    //private long count;
-   private String level = "info";
+   //private String level = "info";
 
    public ChatMessage(){
       Date date = new Date();
@@ -24,8 +24,8 @@ public class ChatMessage {
       time=sdf.format(date);
    }
 
-   public ChatMessage(String category, String description) {
-      this.category = category;
-      this.description = description;
-   }
+//   public ChatMessage(String category, String description) {
+//      this.category = category;
+//      this.description = description;
+//   }
 }

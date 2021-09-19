@@ -3,6 +3,7 @@ package com.game.daoimpl;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.game.annotation.ClusterSafe;
+import com.game.context.FrameSyncContext;
 import com.game.dao.RoomCacheDao;
 import com.game.dto.RoomDto;
 import com.game.dto.RoomFeatureDto;
@@ -145,14 +146,13 @@ public class RoomCacheDaoJedisImpl implements RoomCacheDao {
         jedis.hset(sectionKey, roomId + "", roomFeature.toString());
         jedis.hset("users", hostId + "", roomId + "");
         jedis.set("roomIdx", roomId + "");
-        jedis.rpush("created", roomId + "");
         System.out.println("addRoom hostId: " + hostId + " roomId: " + roomId);
     }
 
     @Override
     public RoomDto addRoomMember(int roomId, int clientId) {
         RoomFeatureDto roomFeature = getRoomFeature(roomId);//如果房间可以加入
-        System.out.println("roomId: " + roomId + " client: " + clientId + " " + roomFeature.toString());
+        System.out.println("roomId: " + roomId + "  client: " + clientId + " " + roomFeature.toString());
         roomFeature.getClientsId().add(clientId);
         String sectionKey = sectionKeySuffix + (roomId / sectionSize);
         jedis.hset(sectionKey, roomId + "", roomFeature.toString());
@@ -180,7 +180,6 @@ public class RoomCacheDaoJedisImpl implements RoomCacheDao {
     public void clearContext() {
         removeKeyIfExists("users");
         removeKeyIfExists("roomIdx");
-        removeKeyIfExists("created");
         removeKeyIfExists("deleted");
 
         for (int i = 0; i < sectionCount; ++i) {
@@ -214,6 +213,9 @@ public class RoomCacheDaoJedisImpl implements RoomCacheDao {
                 RoomFeatureDto roomFeature = getRoomFeature(roomId);
                 if (roomFeature != null && roomFeature.getHostId() == myId) {
                     removeRoom(roomId);
+                    if (jedis.hexists("playerInfo", roomId + "")) {
+                        jedis.hdel("playerInfo", roomId + "");
+                    }
                 }
             }
         } catch (InterruptedException e) {
@@ -238,22 +240,9 @@ public class RoomCacheDaoJedisImpl implements RoomCacheDao {
     }
 
     @Override
-    public int getFirstCreatedRoomId() {
-        String roomIdStr = jedis.rpop("created");
-        return roomIdStr == null ? -1 : Integer.parseInt(roomIdStr);
-    }
-
-    @Override
     public void addDeletedRoomId(int roomId) {
         if (roomId >= 0) {
             jedis.rpush("deleted", roomId + "");
-        }
-    }
-
-    @Override
-    public void addCreatedRoomId(int roomId) {
-        if (roomId >= 0) {
-            jedis.rpush("created", roomId + "");
         }
     }
 }

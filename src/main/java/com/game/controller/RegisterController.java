@@ -5,6 +5,7 @@ import com.game.service.RegisterService;
 import com.game.utils.messageUtils.Message;
 import com.game.utils.messageUtils.MessageUtil;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,6 +18,7 @@ public class RegisterController {
     RegisterService registerService;
 
     @SkipToken
+    @ApiOperation(value = "获取vcode", notes = "获取vcode")
     @RequestMapping(value = "/getvcode", method = RequestMethod.GET)
     public Message getVCode(@RequestParam String email) {
         boolean flag = registerService.getVCode(email);
@@ -27,58 +29,15 @@ public class RegisterController {
         }
     }
 
-//    @SkipToken
-//    @RequestMapping(value = "/register", method = RequestMethod.POST)
-//    public Message register(@RequestBody Map<String, String> params) {
-//        String username = params.get("username");
-//        String password = params.get("password");
-//        String email = params.get("email");
-//        String vcode = params.get("vcode");
-//
-//        UserAuthority userAuthority = loginService.findUserAuthorityByUsername(username);
-//        if (userAuthority != null) {
-//            LogUtil.print(MessageUtil.MSG_USERNAME_USED);
-//            return MessageUtil.createMessage(MessageUtil.STAT_INVALID, MessageUtil.MSG_USERNAME_USED);
-//        }
-//        //判断验证码是否正确以及是否失效
-//        int flag = loginService.cmpVCode(vcode);
-//        switch (flag) {
-//            case 1:
-//                LogUtil.print(MessageUtil.MSG_REGISTER_SUCCEED);
-//                loginService.saveUserAuthority(username, password, email, 1);
-//                return MessageUtil.createMessage(MessageUtil.STAT_OK, MessageUtil.MSG_REGISTER_SUCCEED);
-//            case 2:
-//                LogUtil.print(MessageUtil.MSG_VCODE_OUTDATED);
-//                return MessageUtil.createMessage(MessageUtil.STAT_INVALID, MessageUtil.MSG_VCODE_OUTDATED);
-//            default:
-//                LogUtil.print(MessageUtil.MSG_VCODE_WRONG);
-//                return MessageUtil.createMessage(MessageUtil.STAT_INVALID, MessageUtil.MSG_VCODE_WRONG);
-//        }
-//    }
-
-//    @SkipToken
-//    @RequestMapping(value = "/noVcodeRegister", method = RequestMethod.POST)
-//    public Message registerWithNoVcode(@RequestBody Map<String, String> params) {
-//        String username = params.get("username");
-//        String password = params.get("password");
-//        String email = params.get("email");
-//
-//        UserAuthority userAuthority = loginService.findUserAuthorityByUsername(username);
-//        if (userAuthority != null) {
-//            LogUtil.print(MessageUtil.MSG_USERNAME_USED);
-//            return MessageUtil.createMessage(MessageUtil.STAT_INVALID, MessageUtil.MSG_USERNAME_USED);
-//        }
-//        loginService.saveUserAuthority(username, password, email, 1);
-//        return MessageUtil.createMessage(MessageUtil.STAT_OK, MessageUtil.MSG_REGISTER_SUCCEED);
-//    }
-
     @SkipToken
+    @ApiOperation(value = "用户注册（无需vcode）", notes = "发送请求的用户注册（无需vcode）")
     @RequestMapping(value = "/registerWithoutVCode", method = RequestMethod.POST)
     public Message registerWithoutVCode(@RequestBody Map<String, String> params) {
         return registerService.registerWithoutVCode(params);
     }
 
     @SkipToken
+    @ApiOperation(value = "用户注册", notes = "发送请求的用户进行注册")
     @RequestMapping(value = "/register", method = RequestMethod.POST)
     public Message register(@RequestBody Map<String, String> params) {
         return registerService.register(params);

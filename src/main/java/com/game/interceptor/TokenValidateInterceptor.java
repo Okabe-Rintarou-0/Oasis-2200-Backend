@@ -7,7 +7,7 @@ import com.auth0.jwt.exceptions.JWTDecodeException;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.game.annotation.SkipToken;
 import com.game.entity.UserAuthority;
-import com.game.service.LoginService;
+import com.game.service.UserService;
 import com.game.utils.logUtils.LogUtil;
 import com.game.utils.messageUtils.Message;
 import com.game.utils.messageUtils.MessageUtil;
@@ -26,7 +26,7 @@ import java.lang.reflect.Method;
 @NoArgsConstructor
 public class TokenValidateInterceptor extends HandlerInterceptorAdapter {
     @Autowired
-    LoginService loginService;
+    private UserService userService;
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object obj) {
@@ -61,7 +61,7 @@ public class TokenValidateInterceptor extends HandlerInterceptorAdapter {
                 return false;
             }
             System.out.println("username = " + username);
-            UserAuthority user = loginService.findUserAuthorityByUsername(username);
+            UserAuthority user = userService.findUserAuthorityByUsername(username);
             if (user == null) {
                 Message message = MessageUtil.createMessage(MessageUtil.STAT_INVALID, "用户不存在，请重新登录");
                 this.sendJsonBack(response, message);

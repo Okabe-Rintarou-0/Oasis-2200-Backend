@@ -11,7 +11,7 @@ public class MailUtil {
     //发送验证码的方法,to是目标邮箱地址，text是发送的验证码（事先生成）
     public static boolean sendMail (String to,String text) {
         //LogUtil.print("sendMail...util...");
-        LogUtil.print("begin sending Email to "+to);
+        LogUtil.print("begin sending Email to #"+to+"#");
         JavaMailSenderImpl senderImpl=new JavaMailSenderImpl();
         SimpleMailMessage mailMessage=new SimpleMailMessage();
         Properties prop=new Properties();
@@ -42,6 +42,7 @@ public class MailUtil {
             return true;
         }catch (Exception e) {
             LogUtil.print("Send Mail Fail");
+            LogUtil.print(e.getMessage());
             return false;
         }
     }

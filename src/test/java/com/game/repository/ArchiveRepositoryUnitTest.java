@@ -1,9 +1,6 @@
 package com.game.repository;
 
 import com.game.entity.Archive;
-import com.game.properties.ClusterProperties;
-import com.game.properties.JwtProperties;
-import com.game.properties.RoomProperties;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import org.bson.Document;
@@ -11,7 +8,6 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.test.annotation.Rollback;

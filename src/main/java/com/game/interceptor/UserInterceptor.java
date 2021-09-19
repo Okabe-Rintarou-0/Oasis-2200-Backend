@@ -2,6 +2,7 @@ package com.game.interceptor;
 
 import com.game.context.WebsocketContext;
 
+import com.game.pricipal.UserPrincipal;
 import com.game.utils.jwtUtils.JwtUtil;
 import com.game.utils.logUtils.LogUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +14,7 @@ import org.springframework.messaging.support.ChannelInterceptor;
 import org.springframework.messaging.support.MessageHeaderAccessor;
 import org.springframework.stereotype.Component;
 
+import java.util.Arrays;
 import java.util.List;
 
 @Component
@@ -36,19 +38,6 @@ public class UserInterceptor implements ChannelInterceptor {
 //            LogUtil.print(JSON.toJSONString(accessor.getNativeHeader("token")));
             switch (thisCmd) {
                 case CONNECT: {
-                    List<String> httpTokens = accessor.getNativeHeader("token");
-                    if (httpTokens != null && httpTokens.size() == 1) {
-                        String token = httpTokens.get(0);
-                        if (token != null) {
-                            LogUtil.info("token = " + token);
-                            Integer userId = JwtUtil.getUserIdFromToken(token);
-                            LogUtil.info("userId = " + userId);
-                            if (userId != null) {
-                                LogUtil.info("bind " + wsSessionId + " to " + userId);
-                                websocketContext.bind(wsSessionId, userId);
-                            }
-                        }
-                    }
                     break;
                 }
                 case DISCONNECT: {
@@ -64,8 +53,22 @@ public class UserInterceptor implements ChannelInterceptor {
                     break;
                 }
                 case SUBSCRIBE: {
-                    LogUtil.print("Ws(%s) has subscribe to: %s, ip = %s",
-                            wsSessionId, accessor.getDestination(), intraNetIp);
+                    List<String> httpTokens = accessor.getNativeHeader("token");
+                    if (httpTokens != null && httpTokens.size() == 1) {
+                        String token = httpTokens.get(0);
+                        if (token != null) {
+                            LogUtil.info("token = " + token);
+                            Integer userId = JwtUtil.getUserIdFromToken(token);
+                            LogUtil.info("userId = " + userId);
+                            String destination = accessor.getDestination();
+                            LogUtil.print("Ws(%s) has subscribe to: %s, ip = %s",
+                                    wsSessionId, destination, intraNetIp);
+                            if (userId >= 0 && destination != null && destination.contains("room")) {
+                                websocketContext.bind(wsSessionId, userId);
+                            }
+                            break;
+                        }
+                    }
                     break;
                 }
                 case UNSUBSCRIBE:
@@ -73,6 +76,8 @@ public class UserInterceptor implements ChannelInterceptor {
                             wsSessionId, accessor.getDestination(), intraNetIp);
                     break;
                 case SEND:
+                    accessor.setUser(new UserPrincipal(wsSessionId));
+//                    LogUtil.info("hb = " + Arrays.toString(accessor.getHeartbeat()));
 //                    LogUtil.print("Ws(%s) has send to: %s, ip = %s",
 //                            wsSessionId, accessor.getDestination(), intraNetIp);
                     break;

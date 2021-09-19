@@ -46,6 +46,7 @@ public class FrameSyncServiceImpl implements FrameSyncService {
             //no one has disconnected
             if (disconnectedUser < 0) {
                 StompMessage stompMessage = MessageUtil.createStompMessage("frame", "frame", frameSyncContext.getFrameDataOfThisFrame(roomId));
+                LogUtil.info("Send frame to room " + roomId + " with msg " + stompMessage.data.toString());
                 simpMessagingTemplate.convertAndSend(dest, stompMessage);
                 frameSyncContext.clearFrame(roomId);
             } else { //someone has disconnected
@@ -56,6 +57,7 @@ public class FrameSyncServiceImpl implements FrameSyncService {
                     roomContext.forceDeleteRoom(roomId);
                 }
                 frameSyncContext.removeFrameSyncScheduler(roomId);
+                frameSyncContext.removePingPong(roomId);
                 JSONObject data = new JSONObject();
                 int winner = disconnectedUser == 0 ? 1 : 0;
                 data.put("winner", winner); //附带获胜者信息

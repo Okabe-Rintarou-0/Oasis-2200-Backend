@@ -48,7 +48,6 @@ public class RoomServiceUnitTest {
 
         Mockito.when(roomContext.addRandomRoomMember(0)).thenReturn(true);
         Mockito.when(roomContext.addRandomRoomMember(-1)).thenReturn(false);
-
     }
 
     @Test

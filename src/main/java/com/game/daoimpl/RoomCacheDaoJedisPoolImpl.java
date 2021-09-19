@@ -264,27 +264,10 @@ public class RoomCacheDaoJedisPoolImpl implements RoomCacheDao {
     }
 
     @Override
-    public int getFirstCreatedRoomId() {
-        Jedis jedis = jedisPool.getResource();
-        String roomIdStr = jedis.rpop("created");
-        jedis.close();
-        return roomIdStr == null ? -1 : Integer.parseInt(roomIdStr);
-    }
-
-    @Override
     public void addDeletedRoomId(int roomId) {
         if (roomId >= 0) {
             Jedis jedis = jedisPool.getResource();
             jedis.rpush("deleted", roomId + "");
-            jedis.close();
-        }
-    }
-
-    @Override
-    public void addCreatedRoomId(int roomId) {
-        if (roomId >= 0) {
-            Jedis jedis = jedisPool.getResource();
-            jedis.rpush("created", roomId + "");
             jedis.close();
         }
     }

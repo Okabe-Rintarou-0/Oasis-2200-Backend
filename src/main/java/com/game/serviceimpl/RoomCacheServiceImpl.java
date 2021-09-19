@@ -40,7 +40,7 @@ public class RoomCacheServiceImpl implements RoomCacheService {
     @Autowired
     private String sharedRoomLockKey;
 
-//    @Qualifier("roomCacheDaoJedisPoolImpl")
+    //    @Qualifier("roomCacheDaoJedisPoolImpl")
     @Qualifier("roomCacheDaoJedisImpl")
 //    @Qualifier("roomCacheDaoImpl")
     @Autowired
@@ -156,7 +156,7 @@ public class RoomCacheServiceImpl implements RoomCacheService {
                     return null;
                 }
                 roomId = tryGetJoinableRoomId();
-                if (roomId < 0) return null; //没房间的话就无法加入；
+                if (roomId < 0) return null;
                 roomDto = roomCacheDao.addRoomMember(roomId, clientId);
             }
         } catch (InterruptedException e) {
@@ -233,7 +233,11 @@ public class RoomCacheServiceImpl implements RoomCacheService {
     //获取可用的房间号用于加入。
     @Override
     public int tryGetJoinableRoomId() {
-        return roomCacheDao.getFirstCreatedRoomId();
+        int lastRoomId = roomCacheDao.getLastRoomIndex();
+        RoomFeatureDto roomFeature = roomCacheDao.getRoomFeature(lastRoomId);
+        return roomFeature != null && !roomFeature.isFull() ?
+                lastRoomId
+                : -1;
     }
 
     //获取可用的房间号用于创建。

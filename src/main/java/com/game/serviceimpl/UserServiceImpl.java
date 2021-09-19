@@ -16,10 +16,20 @@ import org.springframework.stereotype.Service;
 @Service
 public class UserServiceImpl implements UserService {
     @Autowired
-    UserDao userDao;
+    private UserDao userDao;
 
     @Override
     public UserAuthority getUserAuthority(int userId) {
         return userDao.getUserAuthority(userId);
+    }
+
+    @Override
+    public void removeUser(String username) {
+        userDao.removeUser(username);
+    }
+
+    @Override
+    public UserAuthority findUserAuthorityByUsername(String username) {
+        return userDao.findUserAuthorityByUsername(username);
     }
 }

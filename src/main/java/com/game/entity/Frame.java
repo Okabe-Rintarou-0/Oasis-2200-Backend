@@ -1,6 +1,6 @@
 package com.game.entity;
 
-import lombok.AllArgsConstructor;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -14,6 +14,7 @@ import java.util.List;
 public class Frame implements Serializable {
     private final List<Operation> operations = Collections.synchronizedList(new ArrayList<>());
 
+    @JsonIgnore
     public void updateFrame(Frame frame) {
         for (Operation frameOperation : frame.operations) {
             boolean hasSameName = false;

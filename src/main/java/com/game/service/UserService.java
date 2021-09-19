@@ -11,4 +11,8 @@ import com.game.entity.UserAuthority;
  */
 public interface UserService {
     UserAuthority getUserAuthority(int userId);
+
+    void removeUser(String username);
+
+    UserAuthority findUserAuthorityByUsername(String username);
 }

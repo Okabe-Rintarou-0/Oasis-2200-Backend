@@ -153,7 +153,6 @@ public class RoomCacheDaoImpl implements RoomCacheDao {
         redisTemplate.boundHashOps(sectionKey).put(roomId + "", roomFeature);
         redisTemplate.boundHashOps("users").put(hostId + "", roomId);
         redisTemplate.boundValueOps("roomIdx").set(roomId);
-        redisTemplate.boundListOps("created").rightPush(roomId);
         System.out.println("addRoom hostId: " + hostId + " roomId: " + roomId);
     }
 
@@ -170,29 +169,10 @@ public class RoomCacheDaoImpl implements RoomCacheDao {
         return -1;
     }
 
-    //创建的房间队列，给joinRoom使用。
-    @Override
-    public int getFirstCreatedRoomId() {
-        Long size = redisTemplate.boundListOps("created").size();
-        if (size != null && size > 0) {
-            Object obj = redisTemplate.boundListOps("created").leftPop();
-            if (obj != null)
-                return (int) obj;
-        }
-        return -1;
-    }
-
     @Override
     public void addDeletedRoomId(int roomId) {
         if (roomId >= 0) {
             redisTemplate.boundListOps("deleted").rightPush(roomId);
-        }
-    }
-
-    @Override
-    public void addCreatedRoomId(int roomId) {
-        if (roomId >= 0) {
-            redisTemplate.boundListOps("created").rightPush(roomId);
         }
     }
 
@@ -229,7 +209,6 @@ public class RoomCacheDaoImpl implements RoomCacheDao {
     public void clearContext() {
         removeKeyIfExists("users");
         removeKeyIfExists("roomIdx");
-        removeKeyIfExists("created");
         removeKeyIfExists("deleted");
 
         HashMap<String, Object> roomFeatures = new HashMap<>();

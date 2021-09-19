@@ -43,4 +43,19 @@ public class UserServiceImplTest {
 
         Assertions.assertNull(userService.getUserAuthority(-1));
     }
+
+    @Test
+    @DisplayName("测试根据用户名获取用户auth")
+    public void getAuthByUsername() {
+        UserAuthority testAuthority = new UserAuthority(1, "123", "123", "123", 1);
+        Mockito.when(userDao.findUserAuthorityByUsername("lzh"))
+                .thenReturn(testAuthority);
+        Assertions.assertEquals(testAuthority, userService.findUserAuthorityByUsername("lzh"));
+    }
+
+    @Test
+    @DisplayName("测试根据用户名删除用户auth")
+    public void removeAuthByUsername() {
+        userService.removeUser("lzh");
+    }
 }

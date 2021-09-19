@@ -2,7 +2,9 @@ package com.game.controller;
 
 import com.game.annotation.SkipToken;
 import com.game.annotation.UserLoginToken;
+import com.game.context.WebsocketContext;
 import com.game.dto.RoomDto;
+import com.game.pricipal.UserPrincipal;
 import com.game.service.RoomCacheService;
 import com.game.service.RoomService;
 import com.game.utils.jwtUtils.JwtUtil;
@@ -12,17 +14,21 @@ import com.game.utils.messageUtils.Message;
 import com.game.utils.messageUtils.MessageUtil;
 import com.game.utils.testUtils.ClusterTestUtil;
 import io.swagger.annotations.Api;
-import jdk.nashorn.internal.ir.annotations.Ignore;
+import io.swagger.annotations.ApiOperation;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
 @Api(tags = "房间模块")
+@RequestMapping("/room")
 @RestController
 public class RoomController {
 
@@ -41,38 +47,48 @@ public class RoomController {
     @Autowired
     SimpMessagingTemplate simpMessagingTemplate;
 
-    @RequestMapping(value = "/createRoom", method = RequestMethod.GET)
+    @Autowired
+    WebsocketContext websocketContext;
+
+    @ApiOperation(value = "创建房间", notes = "创建一个供对战使用的房间")
+    @RequestMapping(value = "/create", method = RequestMethod.GET)
     public Message createRoom() {
-        clusterTestUtil.logWhoImAndWhatIHaveCalled("createRoom");
+        clusterTestUtil.logWhoImAndWhatIHaveCalled("create");
         return roomCacheService.createRoom(JwtUtil.getUserId());
 //        return roomService.addRoom(JwtUtil.getUserId());
     }
 
+    @MessageMapping("/heart-beat")
+    public void heartBeat(UserPrincipal userPrincipal, Long heartBeat) {
+        LogUtil.info("receive heart-beat " + heartBeat + " from user " + userPrincipal.getName());
+        if (heartBeat > 0) {
+            websocketContext.updateHeartBeat(userPrincipal.getName(), heartBeat);
+        }
+//        simpMessagingTemplate.convertAndSendToUser(userPrincipal.getName(), NetworkConstants.TOPIC_HEART_BEAT, websocketContext.createHeartBeatMsg());
+    }
+
     //测试用接口
     @SkipToken
-    @RequestMapping(value = "/getAllRooms", method = RequestMethod.GET)
+    @ApiOperation(value = "获取所有房间信息", notes = "获取所有房间信息")
+    @RequestMapping(value = "/getAll", method = RequestMethod.GET)
     public ArrayMessage getAllRooms() {
         List<RoomDto> allRooms = roomService.getAllRooms();
         return MessageUtil.createArrayMessage(MessageUtil.STAT_OK, "所有房间信息", JSONArray.fromObject(allRooms));
     }
 
     @SkipToken
-    @RequestMapping(value = "/clearAllRooms", method = RequestMethod.GET)
+    @ApiOperation(value = "清除房间信息", notes = "清除房间信息")
+    @RequestMapping(value = "/clearAll", method = RequestMethod.GET)
     public String clearAllRooms() {
         roomService.clearRooms();
         return "清除成功!";
     }
 
-//    @SkipToken
-//    @RequestMapping(value = "/refreshRooms", method = RequestMethod.GET)
-//    public List<RoomDto> refreshRooms() {
-//        return roomService.refreshRooms();
-//    }
-
     @UserLoginToken
-    @RequestMapping(value = "/joinRoom", method = RequestMethod.GET)
+    @ApiOperation(value = "加入房间", notes = "玩家加入一个房间进行对战")
+    @RequestMapping(value = "/join", method = RequestMethod.GET)
     public Message joinRoom() {
-        clusterTestUtil.logWhoImAndWhatIHaveCalled("joinRoom");
+        clusterTestUtil.logWhoImAndWhatIHaveCalled("join");
         RoomDto roomDto = roomCacheService.joinRoom(JwtUtil.getUserId());
         if (roomDto != null) {
             return MessageUtil.createMessage(MessageUtil.STAT_OK, "加入成功！", JSONObject.fromObject(roomDto));
@@ -86,10 +102,10 @@ public class RoomController {
 //        return MessageUtil.createMessage(MessageUtil.STAT_OK, "加入成功！", JSONObject.fromObject(roomDto));
     }
 
+    @ApiOperation(value = "加入或创建房间", notes = "如果房间加入失败则创建房间")
     @RequestMapping(value = "/joinOrCreate", method = RequestMethod.GET)
     public Message joinOrCreateRoom() {
         Integer userId = JwtUtil.getUserId();
-        clusterTestUtil.logWhoImAndWhatIHaveCalled("joinRoom");
         RoomDto roomDto = roomCacheService.joinRoom(userId);
         if (roomDto != null) {
             return MessageUtil.createMessage(MessageUtil.STAT_OK, "加入成功！", JSONObject.fromObject(roomDto));
@@ -103,6 +119,7 @@ public class RoomController {
 //        }
 //        return MessageUtil.createMessage(MessageUtil.STAT_OK, "加入成功！", JSONObject.fromObject(roomDto));
     }
+
 
 //    @RequestMapping(value = "/removeRoom", method = RequestMethod.GET)
 //    public void removeRoom(@RequestParam Integer roomId) {

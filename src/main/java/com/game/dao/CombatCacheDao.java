@@ -1,6 +1,7 @@
 package com.game.dao;
 
 import com.game.entity.CharacterInfo;
+import com.game.entity.PlayerStatus;
 
 import java.util.List;
 import java.util.Map;

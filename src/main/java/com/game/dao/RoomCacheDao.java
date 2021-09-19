@@ -41,9 +41,5 @@ public interface RoomCacheDao {
 
     int getFirstDeletedRoomId();
 
-    int getFirstCreatedRoomId();
-
     void addDeletedRoomId(int roomId);
-
-    void addCreatedRoomId(int roomId);
 }
