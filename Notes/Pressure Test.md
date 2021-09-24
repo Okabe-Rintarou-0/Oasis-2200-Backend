@@ -16,7 +16,7 @@ ${variable_name} variable_name代表变量名，比如常用的变量：${__thre
 
 使用JSON提取器可以提取Response中的数据并保存到指定变量中，比如下面的JSON提取器将提取登录之后服务器返还的token(JWT)，并保存到变量token中。可以通过${token}获取变量token的值。
 
-![image](https://raw.githubusercontent.com/Okabe-Rintarou-0/web-images/master/books/image.7hnkyld422o0.png)
+![image](https://raw.githubusercontent.com/Okabe-Rintarou-0/web-images/master/books/image.22y3jokl4tu.png)
 
 ##### BeanShell处理器
 
